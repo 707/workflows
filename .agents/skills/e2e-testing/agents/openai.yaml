@@ -1,0 +1,7 @@
+interface:
+  display_name: "E2E Testing"
+  short_description: "End-to-end test planning and Playwright guidance"
+  brand_color: "#F59E0B"
+  default_prompt: "Plan or implement E2E coverage for the critical user journey"
+policy:
+  allow_implicit_invocation: true

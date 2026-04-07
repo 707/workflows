@@ -1,0 +1,7 @@
+interface:
+  display_name: "Backend Patterns"
+  short_description: "API, service, and data-layer implementation patterns"
+  brand_color: "#14B8A6"
+  default_prompt: "Apply backend patterns for API boundaries, services, repositories, and validation"
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Strategic Compact"
+  short_description: "Context management and compact timing guidance"
+  brand_color: "#6366F1"
+  default_prompt: "Help manage context deliberately and preserve only the important state"
+policy:
+  allow_implicit_invocation: true

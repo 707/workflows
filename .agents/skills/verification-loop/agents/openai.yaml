@@ -1,0 +1,7 @@
+interface:
+  display_name: "Verification Loop"
+  short_description: "Build, test, lint, typecheck, and verify changes"
+  brand_color: "#10B981"
+  default_prompt: "Run the verification loop: build, test, lint, typecheck, and review the results"
+policy:
+  allow_implicit_invocation: true

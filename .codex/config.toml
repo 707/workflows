@@ -1,0 +1,70 @@
+#:schema https://developers.openai.com/codex/config-schema.json
+
+# project-template — Codex CLI reference configuration
+#
+# Keep this file in the repository for project-local defaults, or copy it to
+# ~/.codex/config.toml for a global baseline.
+
+# Leave `model` unset unless you explicitly want to pin a repo-local default.
+
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+web_search = "live"
+
+# Optional notification example for macOS:
+# notify = [
+#   "terminal-notifier",
+#   "-title", "project-template",
+#   "-message", "Codex task completed",
+#   "-sound", "default",
+# ]
+
+# Prefer the root AGENTS.md plus .codex/AGENTS.md for persistent guidance.
+
+# MCP servers
+# Keep this template lean. Uncomment only the servers the project actually needs.
+#
+# [mcp_servers.context7]
+# command = "npx"
+# args = ["-y", "@upstash/context7-mcp@latest"]
+#
+# [mcp_servers.memory]
+# command = "npx"
+# args = ["-y", "@modelcontextprotocol/server-memory"]
+#
+# [mcp_servers.sequential-thinking]
+# command = "npx"
+# args = ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+#
+# [mcp_servers.github]
+# command = "npx"
+# args = ["-y", "@modelcontextprotocol/server-github"]
+
+[features]
+multi_agent = true
+
+[profiles.strict]
+approval_policy = "on-request"
+sandbox_mode = "read-only"
+web_search = "cached"
+
+[profiles.yolo]
+approval_policy = "never"
+sandbox_mode = "workspace-write"
+web_search = "live"
+
+[agents]
+max_threads = 4
+max_depth = 1
+
+[agents.explorer]
+description = "Read-only codebase explorer for tracing execution paths and gathering evidence."
+config_file = "agents/explorer.toml"
+
+[agents.reviewer]
+description = "Read-only reviewer focused on correctness, security, regressions, and missing tests."
+config_file = "agents/reviewer.toml"
+
+[agents.docs_researcher]
+description = "Documentation specialist for verifying APIs, release notes, and current behavior."
+config_file = "agents/docs-researcher.toml"

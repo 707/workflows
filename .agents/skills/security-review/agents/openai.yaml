@@ -1,0 +1,7 @@
+interface:
+  display_name: "Security Review"
+  short_description: "Security review checklist for app and API changes"
+  brand_color: "#EF4444"
+  default_prompt: "Review this change for security issues, risky assumptions, and missing safeguards"
+policy:
+  allow_implicit_invocation: true

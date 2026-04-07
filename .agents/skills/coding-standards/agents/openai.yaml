@@ -1,0 +1,7 @@
+interface:
+  display_name: "Coding Standards"
+  short_description: "Comprehensible code standards and project conventions"
+  brand_color: "#3B82F6"
+  default_prompt: "Apply the project coding standards and keep the change comprehensible"
+policy:
+  allow_implicit_invocation: true

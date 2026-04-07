@@ -1,0 +1,7 @@
+interface:
+  display_name: "Eval Harness"
+  short_description: "Eval-driven development and scoring loops"
+  brand_color: "#06B6D4"
+  default_prompt: "Define or tighten an eval harness for this behavior before broad rollout"
+policy:
+  allow_implicit_invocation: true

@@ -45,7 +45,7 @@ This approach means BUILDING.md is never a chore — it writes itself during nor
 
 ### 2.2 How ECC Informed the Foundation
 
-Everything Claude Code (ECC) v1.8.0, developed by Affaan Mustafa (Anthropic Hackathon winner), provided the foundational patterns that project-template is built on:
+Everything Claude Code (ECC) v1.9.0, developed by Affaan Mustafa (Anthropic Hackathon winner), provided the foundational patterns that project-template is built on:
 
 - **Agent architecture**: The pattern of specialized agents with YAML frontmatter (planner, tdd-guide, code-reviewer, security-reviewer, etc.) and the discipline of invoking them via slash commands
 - **Slash command system**: The pattern of `.claude/commands/*.md` files as structured, documented workflow entry points
@@ -75,7 +75,7 @@ ECC is a community-facing, distribution-ready toolkit. project-template is a per
 | 23 commands from ECC's 40 | Reduced to ~17 focused commands covering the actual development loop |
 | 6 agents from ECC's 16 | Reduced to 10 core agents (removed go-reviewer, go-build-resolver, python-reviewer, doc-updater, loop-operator, chief-of-staff) |
 | `mcp-configs/` | MCP selection is per-project; not baked into the template |
-| `.cursor/`, `.codex/`, `.opencode/` configs | Single IDE focus |
+| `.cursor/`, `.opencode/` configs | Keep the fork focused; Codex is now supported directly, broader harness expansion is still intentionally out of scope |
 | Multi-instance parallelization patterns | Simpler single-agent-per-task model preferred |
 
 ### 3.2 What Was Added
@@ -192,6 +192,23 @@ ECC requires running `install.sh typescript python` to install language-specific
 
 Skills in `skills/web/`, `skills/database/`, etc. are only activated when the corresponding stack is declared. This prevents irrelevant skills from polluting the context.
 
+#### First-Class Codex Support
+
+The original fork deliberately excluded Codex because the initial template was optimized around Claude hooks and Gemini rituals. With ECC v1.9.0, the Codex surface is mature enough to support directly without changing the template's philosophy.
+
+The Codex adaptation in project-template adds:
+
+- `AGENTS.md` as a shared cross-harness workflow baseline
+- `.codex/config.toml` with safe project-local defaults and optional multi-agent roles
+- `.codex/AGENTS.md` with Codex-specific operating guidance
+- `.agents/skills/` as a curated export layer for Codex auto-loaded skills
+
+What it does **not** add:
+
+- hook parity with Claude Code
+- slash-command parity in Codex
+- a broad re-import of ECC's wider multi-harness footprint
+
 ### 3.3 Key Philosophy Shift: Global Toolkit vs Project Scaffolding
 
 | Dimension | ECC | project-template |
@@ -202,8 +219,23 @@ Skills in `skills/web/`, `skills/database/`, etc. are only activated when the co
 | **MCP management** | 14 MCPs, enable/disable per project | No MCPs baked in; per-project decision |
 | **Skill activation** | install.sh per-language | Tech stack declaration in CLAUDE.md |
 | **Ticket context** | Session summaries only | Ticket context files + session summaries |
-| **Platform support** | Claude Code only | Claude Code + Gemini CLI |
+| **Platform support** | Claude Code only | Claude Code + Gemini CLI + Codex CLI/app |
 | **Target user** | Any Claude Code developer (community) | Personal workflow |
+
+### 3.4 ECC v1.9.0 vs project-template (Codex-focused Comparison)
+
+This comparison is intentionally narrow: it tracks what changed in ECC's Codex surface and how much of that surface belongs in the fork.
+
+| Area | ECC v1.9.0 | project-template |
+|------|------------|------------------|
+| Root instructions | `AGENTS.md` shared across harnesses | Now adopted directly |
+| Codex supplement | `.codex/AGENTS.md` with Codex-specific guidance | Adopted, but rewritten around the ticket-context workflow |
+| Codex config | `.codex/config.toml` using current Codex schema | Adopted with leaner defaults and optional MCP examples |
+| Codex skill packaging | 20+ packaged skills in `.agents/skills/` | Curated subset of 10 exported from canonical `skills/` |
+| Codex multi-agent roles | Explorer, reviewer, docs researcher | Minimal optional roles adopted |
+| Hook parity | Not available | Still intentionally absent |
+| Slash-command parity | Not available | Still intentionally absent |
+| Broader multi-harness expansion | Cursor/OpenCode/others | Still intentionally out of scope |
 
 ---
 
@@ -425,7 +457,7 @@ See also: `Klue Dev/WORKFLOW-RETROSPECTIVE.md` for the Klue Dev perspective on t
 |-----------|--------------------------|--------------------------|
 | **Workflow installation** | Ad-hoc, per-project setup | Drop in `.claude/`, `.gemini/`, `.ai/`, run gen-agents.js |
 | **Context persistence** | `.specs/NOT-*.md` files + `.project_wisdom/` | `.ai/tickets/GH-{N}/context.md` + session summaries |
-| **Agent roles** | Gemini = CTO (plan only), Claude = Dev (implement) | Single AI (Claude or Gemini) + specialized sub-agents per task |
+| **Agent roles** | Gemini = CTO (plan only), Claude = Dev (implement) | Single AI (Claude, Gemini, or Codex) + specialized sub-agents or roles per task |
 | **Planning format** | Markdown spec files (NOT-*.md) with checkboxes | GitHub/Linear Issues + ticket context files |
 | **Plan enforcement** | Honor system (spec as contract) | "Confirmed Plan" field in context.md, tdd-guide agent instructed never to re-plan |
 | **Institutional memory** | `workflow_learnings.md` + PDRs + session logs | BUILDING.md (auto-updating) + skills/ library + session summaries |
@@ -438,7 +470,7 @@ See also: `Klue Dev/WORKFLOW-RETROSPECTIVE.md` for the Klue Dev perspective on t
 | **Setup time for new project** | Days (spec system, workflow files, Linear setup) | Hours (fork template, fill CLAUDE.md §4, run gen-agents.js) |
 | **Learning capture** | Dated session logs, PDRs, workflow_learnings.md | BUILDING.md auto-updates, skills library, session summaries |
 | **Security enforcement** | CONTRIBUTING.md as hard constraints | code-reviewer + security-reviewer agents, pre-commit hooks |
-| **Platform** | Claude (implement) + Gemini (plan) — always both | Claude or Gemini — either works; both available |
+| **Platform** | Claude (implement) + Gemini (plan) — always both | Claude, Gemini, or Codex — any one can run the workflow with different ergonomics |
 
 ### What Klue Dev Did Better
 
@@ -454,7 +486,7 @@ See also: `Klue Dev/WORKFLOW-RETROSPECTIVE.md` for the Klue Dev perspective on t
 - **Automated quality gates**: Format, typecheck, console.log, suggest-compact all happen without developer action.
 - **Transferable to new projects**: Fork the template, fill in the tech stack, done. Klue Dev's workflow was deeply entangled with Klue's specific product.
 - **Skills library scales**: As you build more projects with the template, the skills library grows. Klue Dev's project_wisdom was project-specific.
-- **Dual-platform without context duplication**: Either Claude or Gemini can run the same workflow using the same ticket context files.
+- **Multi-harness without context duplication**: Claude, Gemini, or Codex can run the same workflow using the same ticket context files.
 
 ---
 
