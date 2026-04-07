@@ -1,0 +1,7 @@
+interface:
+  display_name: "Brand Voice"
+  short_description: "Build a source-derived writing style profile from real posts, essays, launch notes, docs, or site copy, then reuse that profile across content, outreach, and social workflows. Use when the user wants voice consistency without generic AI writing tropes."
+  brand_color: "#3B82F6"
+  default_prompt: "Use the brand-voice skill when it is relevant to the task"
+policy:
+  allow_implicit_invocation: true

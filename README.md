@@ -14,11 +14,13 @@ Specialist agents, slash commands, automatic quality hooks, Codex-facing skills,
 2. Open `CLAUDE.md` and fill in the PROJECT SETUP block at the top: project name, tech stack, issue tracker URL
 3. If you use Gemini CLI, review `GEMINI.md`
 4. If you use Codex CLI or the Codex macOS app, review `AGENTS.md` and `.codex/AGENTS.md`
-5. Run `node scripts/export-codex-skills.js` after changing canonical skills in `skills/`
-6. (Optional) Ask Claude or Gemini: `"Read BUILDING-SETUP.md and follow the instructions"` — sets up your build journal and then deletes itself
-7. Start working — the harness-specific config and workflow files are already included
+5. If you want reusable machine-level skills, set `AI_SHARED_SKILLS_DIR` and read `SHARED-SKILLS.md`
+6. Run `node scripts/export-codex-skills.js` after changing canonical skills in `skills/`
+7. (Optional) Run `bash scripts/sync-project-template-to-codex.sh` to sync the baseline into `~/.codex` and generate prompt-based command files
+8. (Optional) Ask Claude or Gemini: `"Read BUILDING-SETUP.md and follow the instructions"` — sets up your build journal and then deletes itself
+9. Start working — the harness-specific config and workflow files are already included
 
-> Codex support is instruction-driven. It does not provide Claude-style hook or slash-command parity.
+> Codex still does not provide true Claude-style hook parity. This template now adds the closest practical equivalents: generated prompt files, Codex role configs, and shared/global skill sync.
 
 
 
@@ -46,6 +48,8 @@ Codex-facing skills are exported from `skills/` into `.agents/skills/` with:
 node scripts/export-codex-skills.js
 ```
 
+Machine-level shared skills are supported through `AI_SHARED_SKILLS_DIR` and the helper scripts documented in `SHARED-SKILLS.md`.
+
 ### Contents
 
 | Path | Purpose |
@@ -53,6 +57,7 @@ node scripts/export-codex-skills.js
 | `CLAUDE.md` | Authoritative workflow guide for Claude Code |
 | `GEMINI.md` | Authoritative workflow guide for Gemini CLI |
 | `AGENTS.md` | Shared cross-harness workflow baseline, auto-read by Codex |
+| `SHARED-SKILLS.md` | Machine-level shared skill architecture and sync workflow |
 | `.codex/` | Codex config, supplement, and optional multi-agent role definitions |
 | `BUILDING-SETUP.md` | Self-installing wizard that generates your build journal |
 | `USER-GUIDE.md` | Explains every component and why it exists |
@@ -60,7 +65,7 @@ node scripts/export-codex-skills.js
 | `.claude/commands/` | 15+ slash commands (`/plan`, `/tdd`, `/code-review`, `/handoff`, etc.) |
 | `.claude/settings.json` | 10 automatic hooks (format, typecheck, console.log warnings, session save/load) |
 | `.ai/agents/` | Platform-agnostic agent source — edit here, regenerate for Claude and Gemini |
-| `.agents/skills/` | Curated Codex-facing export of the core workflow skills |
+| `.agents/skills/` | Codex-facing export built from local skills plus shared fallback |
 | `.ai/tickets/` | Per-issue context files that preserve confirmed plans across sessions |
-| `scripts/` | `gen-agents.js`, `export-codex-skills.js`, hook implementations |
-| `skills/` | 65+ reference files organized by tech stack (opt-in by declaring stack in setup) |
+| `scripts/` | Agent generation, Codex export/sync, shared-skill publish/sync, hook implementations |
+| `skills/` | 78+ canonical skills, including the full current Codex export surface |

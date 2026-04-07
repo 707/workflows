@@ -45,7 +45,7 @@ This approach means BUILDING.md is never a chore — it writes itself during nor
 
 ### 2.2 How ECC Informed the Foundation
 
-Everything Claude Code (ECC) v1.9.0, developed by Affaan Mustafa (Anthropic Hackathon winner), provided the foundational patterns that project-template is built on:
+Everything Claude Code (ECC) v1.10.0, developed by Affaan Mustafa (Anthropic Hackathon winner), provided the foundational patterns that project-template is built on:
 
 - **Agent architecture**: The pattern of specialized agents with YAML frontmatter (planner, tdd-guide, code-reviewer, security-reviewer, etc.) and the discipline of invoking them via slash commands
 - **Slash command system**: The pattern of `.claude/commands/*.md` files as structured, documented workflow entry points
@@ -201,12 +201,14 @@ The Codex adaptation in project-template adds:
 - `AGENTS.md` as a shared cross-harness workflow baseline
 - `.codex/config.toml` with safe project-local defaults and optional multi-agent roles
 - `.codex/AGENTS.md` with Codex-specific operating guidance
-- `.agents/skills/` as a curated export layer for Codex auto-loaded skills
+- `.agents/skills/` as an export layer for the full current Codex-packaged skill surface
+- `scripts/sync-project-template-to-codex.sh` to merge the baseline into `~/.codex`, generate prompt-based command equivalents, and sync shared skills
+- `AI_SHARED_SKILLS_DIR` as a harness-neutral machine-level skill source
 
 What it does **not** add:
 
 - hook parity with Claude Code
-- slash-command parity in Codex
+- true slash-command parity in Codex
 - a broad re-import of ECC's wider multi-harness footprint
 
 ### 3.3 Key Philosophy Shift: Global Toolkit vs Project Scaffolding
@@ -222,19 +224,20 @@ What it does **not** add:
 | **Platform support** | Claude Code only | Claude Code + Gemini CLI + Codex CLI/app |
 | **Target user** | Any Claude Code developer (community) | Personal workflow |
 
-### 3.4 ECC v1.9.0 vs project-template (Codex-focused Comparison)
+### 3.4 ECC v1.10.0 vs project-template (Codex-focused Comparison)
 
 This comparison is intentionally narrow: it tracks what changed in ECC's Codex surface and how much of that surface belongs in the fork.
 
-| Area | ECC v1.9.0 | project-template |
+| Area | ECC v1.10.0 | project-template |
 |------|------------|------------------|
 | Root instructions | `AGENTS.md` shared across harnesses | Now adopted directly |
 | Codex supplement | `.codex/AGENTS.md` with Codex-specific guidance | Adopted, but rewritten around the ticket-context workflow |
 | Codex config | `.codex/config.toml` using current Codex schema | Adopted with leaner defaults and optional MCP examples |
-| Codex skill packaging | 20+ packaged skills in `.agents/skills/` | Curated subset of 10 exported from canonical `skills/` |
+| Codex skill packaging | 30 packaged skills in `.agents/skills/` | 30 exported skills from canonical `skills/` with shared fallback support |
 | Codex multi-agent roles | Explorer, reviewer, docs researcher | Minimal optional roles adopted |
 | Hook parity | Not available | Still intentionally absent |
-| Slash-command parity | Not available | Still intentionally absent |
+| Slash-command parity | Not available | Prompt-based equivalents generated into `~/.codex/prompts` via sync script |
+| Shared skill source | Harness-managed or repo-local | Added machine-level `AI_SHARED_SKILLS_DIR` with publish/sync scripts |
 | Broader multi-harness expansion | Cursor/OpenCode/others | Still intentionally out of scope |
 
 ---

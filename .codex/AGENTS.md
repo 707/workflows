@@ -22,6 +22,7 @@ Codex support in this template is instruction-driven:
 - Ticket context files remain the handoff source of truth.
 - Skills are auto-loaded from `.agents/skills/`.
 - Optional Codex sub-agents are configured in `.codex/agents/`.
+- `bash scripts/sync-project-template-to-codex.sh` can sync the project baseline into `~/.codex`, generate prompt files from `.claude/commands/`, and install shared skills into `~/.agents/skills`.
 
 Codex does not provide the same hook model as Claude Code. Do not claim that session summaries, format hooks, or review reminders happen automatically unless the current Codex feature set actually supports them.
 
@@ -37,20 +38,40 @@ Codex does not provide the same hook model as Claude Code. Do not claim that ses
 
 ## Skills Available to Codex
 
-The exported Codex skill set is intentionally curated to match the template's core workflow:
+The exported Codex skill set now mirrors the current ECC-style packaged surface where local or shared canonical sources exist. It includes:
 
-- `tdd-workflow`
-- `security-review`
-- `coding-standards`
+- `api-design`
+- `article-writing`
 - `backend-patterns`
-- `frontend-patterns`
+- `brand-voice`
+- `bun-runtime`
+- `claude-api`
+- `coding-standards`
+- `content-engine`
+- `crosspost`
+- `deep-research`
+- `dmux-workflows`
+- `documentation-lookup`
 - `e2e-testing`
 - `eval-harness`
+- `everything-claude-code`
+- `exa-search`
+- `fal-ai-media`
+- `frontend-patterns`
+- `frontend-slides`
+- `investor-materials`
+- `investor-outreach`
+- `market-research`
+- `mcp-server-patterns`
+- `nextjs-turbopack`
+- `security-review`
 - `strategic-compact`
-- `api-design`
+- `tdd-workflow`
 - `verification-loop`
+- `video-editing`
+- `x-api`
 
-Canonical content still lives in `skills/`; `.agents/skills/` is the Codex-facing packaging layer.
+Canonical content still lives in `skills/` with optional fallback to `AI_SHARED_SKILLS_DIR`; `.agents/skills/` is the Codex-facing packaging layer.
 
 ## Optional Multi-Agent Roles
 

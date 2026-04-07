@@ -49,19 +49,33 @@ If there is no active ticket, ask for the issue ID or clarify the task before pr
 - Codex CLI / app: instruction-driven workflow using this file plus `.codex/AGENTS.md` and `.codex/config.toml`.
 
 Codex does not have Claude-style hook parity. Do not assume automatic session-start, session-end, formatting, or slash-command behavior.
+Use `bash scripts/sync-project-template-to-codex.sh` to generate prompt-based command equivalents and sync the project baseline into `~/.codex`.
 
 ## Skills
 
 Canonical skill content lives in `skills/`.
 
 - Only use skills relevant to the declared project stack.
-- Codex loads the curated exported subset under `.agents/skills/`.
+- Codex loads the exported skill pack under `.agents/skills/`.
 - Claude and Gemini should continue using the existing template workflow and docs as the source of truth.
+- Machine-level shared skills can live at `AI_SHARED_SKILLS_DIR` or the default `~/.shared-agent-skills`.
 
 If Codex-facing skill packaging drifts, regenerate it with:
 
 ```bash
 node scripts/export-codex-skills.js
+```
+
+To publish local skills into the shared machine-level library:
+
+```bash
+node scripts/publish-skills-to-shared.js --all
+```
+
+To install shared skills into a harness-global directory such as `~/.agents/skills`:
+
+```bash
+node scripts/sync-shared-skills.js
 ```
 
 ## Working Rules
