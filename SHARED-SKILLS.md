@@ -7,7 +7,7 @@ This template supports a machine-level shared skill source that is independent o
 Use one directory on your machine as the canonical shared skill source:
 
 ```bash
-export AI_SHARED_SKILLS_DIR="$HOME/.shared-agent-skills"
+export AI_SHARED_SKILLS_DIR="$HOME/.agent-skills"
 ```
 
 Each skill should live in:
@@ -37,6 +37,7 @@ Publish local skills into the shared directory:
 ```bash
 node scripts/publish-skills-to-shared.js tdd-workflow security-review
 node scripts/publish-skills-to-shared.js --all
+node scripts/publish-skills-to-shared.js --high-signal
 ```
 
 Sync shared skills into a harness-global directory such as `~/.agents/skills`:
@@ -63,6 +64,7 @@ bash scripts/sync-project-template-to-codex.sh
 - `skills/` is repo-local and project-specific.
 - `AI_SHARED_SKILLS_DIR` is your reusable machine-level library.
 - `~/.agents/skills` is a convenient harness-global install target for tools that auto-load skills from there.
+- `--high-signal` publishes the smallest workflow-focused shared pack for new machines or lightweight harness installs.
 
 That gives you three layers:
 

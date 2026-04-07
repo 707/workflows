@@ -155,7 +155,7 @@ EOF
 EOF
 fi
 
-if [[ -d "${AI_SHARED_SKILLS_DIR:-$HOME/.shared-agent-skills}" ]]; then
+if [[ -d "${AI_SHARED_SKILLS_DIR:-$HOME/.agent-skills}" ]]; then
   if [[ "$MODE" == "dry-run" ]]; then
     node "$ROOT/scripts/sync-shared-skills.js" --dry-run --mode link --target "$AGENTS_HOME/skills"
   else

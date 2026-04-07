@@ -15,7 +15,7 @@ function readFlag(flag) {
   return args[index + 1] || null;
 }
 
-const sourceRoot = readFlag('--source') || process.env.AI_SHARED_SKILLS_DIR || path.join(os.homedir(), '.shared-agent-skills');
+const sourceRoot = readFlag('--source') || process.env.AI_SHARED_SKILLS_DIR || path.join(os.homedir(), '.agent-skills');
 const targetRoot = readFlag('--target') || process.env.AI_GLOBAL_SKILLS_DIR || path.join(os.homedir(), '.agents', 'skills');
 const mode = readFlag('--mode') || 'link';
 const force = args.includes('--force');

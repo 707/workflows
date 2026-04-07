@@ -3,45 +3,13 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const { CODEX_SKILLS } = require('./skill-sets');
 
 const ROOT = path.resolve(__dirname, '..');
 const LOCAL_SKILLS_ROOT = path.join(ROOT, 'skills');
-const SHARED_SKILLS_ROOT = process.env.AI_SHARED_SKILLS_DIR || path.join(os.homedir(), '.shared-agent-skills');
+const SHARED_SKILLS_ROOT = process.env.AI_SHARED_SKILLS_DIR || path.join(os.homedir(), '.agent-skills');
 const OUTPUT_ROOT = path.join(ROOT, '.agents', 'skills');
 const isDryRun = process.argv.includes('--dry-run');
-
-const CODEX_SKILLS = [
-  'api-design',
-  'article-writing',
-  'backend-patterns',
-  'brand-voice',
-  'bun-runtime',
-  'claude-api',
-  'coding-standards',
-  'content-engine',
-  'crosspost',
-  'deep-research',
-  'dmux-workflows',
-  'documentation-lookup',
-  'e2e-testing',
-  'eval-harness',
-  'everything-claude-code',
-  'exa-search',
-  'fal-ai-media',
-  'frontend-patterns',
-  'frontend-slides',
-  'investor-materials',
-  'investor-outreach',
-  'market-research',
-  'mcp-server-patterns',
-  'nextjs-turbopack',
-  'security-review',
-  'strategic-compact',
-  'tdd-workflow',
-  'verification-loop',
-  'video-editing',
-  'x-api',
-];
 
 function ensureDir(dir) {
   if (!fs.existsSync(dir)) {

@@ -1,7 +1,7 @@
 # User Guide — AI Coding Workflow
 
 > This guide explains how the system works and why each piece exists.
-> For exhaustive reference, see `CLAUDE.md` and `AGENTS.md`. For Gemini CLI users, see `GEMINI.md`. For Codex users, also see `.codex/AGENTS.md`. For machine-level reusable skills, see `SHARED-SKILLS.md`.
+> For exhaustive reference, see `CLAUDE.md` and `AGENTS.md`. For Gemini CLI users, see `GEMINI.md`. For Codex users, also see `.codex/AGENTS.md`. For OpenCode users, see `.opencode/README.md`. For machine-level reusable skills, see `SHARED-SKILLS.md`.
 
 ---
 
@@ -75,11 +75,12 @@ After copying this template into a new project, do five things:
 1. **Fill in the PROJECT SETUP block in `CLAUDE.md`** — project name, tech stack, issue tracker URL. Delete the block once done.
 2. **Fill in the same block in `GEMINI.md`** — only if you are using Gemini CLI.
 3. **Review `AGENTS.md` and `.codex/AGENTS.md`** — only if you are using Codex CLI or the Codex macOS app. Optionally run `bash scripts/sync-project-template-to-codex.sh` to sync the baseline into `~/.codex`, generate prompt files from `.claude/commands/`, and install shared skills into `~/.agents/skills`.
-4. **Choose a machine-level shared skills directory** — optional, but recommended if you want multiple projects and agents to reuse the same skills. Set `AI_SHARED_SKILLS_DIR` and read `SHARED-SKILLS.md`.
-5. **Set up your build journal** — say `"Read BUILDING-SETUP.md and follow the instructions"`. The wizard explores your project, asks 2-3 questions, and generates a personalized `BUILDING.md` that auto-updates as you build. Runs once at project start; the setup file deletes itself when done.
-6. **Verify the relevant harness is active** — Claude should fire the session-start hook; Gemini should follow the startup ritual in `GEMINI.md`; Codex should auto-read `AGENTS.md` and load the `.agents/skills/` export.
+4. **Review `.opencode/README.md`** — only if you are using OpenCode. Run `node scripts/gen-opencode-assets.js` to regenerate repo-local OpenCode commands and agent prompts from the canonical sources.
+5. **Choose a machine-level shared skills directory** — optional, but recommended if you want multiple projects and agents to reuse the same skills. Set `AI_SHARED_SKILLS_DIR` and read `SHARED-SKILLS.md`. For a smaller baseline, publish only the high-signal pack with `node scripts/publish-skills-to-shared.js --high-signal`.
+6. **Set up your build journal** — say `"Read BUILDING-SETUP.md and follow the instructions"`. The wizard explores your project, asks 2-3 questions, and generates a personalized `BUILDING.md` that auto-updates as you build. Runs once at project start; the setup file deletes itself when done.
+7. **Verify the relevant harness is active** — Claude should fire the session-start hook; Gemini should follow the startup ritual in `GEMINI.md`; Codex should auto-read `AGENTS.md` and load the `.agents/skills/` export; OpenCode should read `.opencode/opencode.json` and the generated `.opencode/commands/`.
 
-That is all. Claude and Gemini surfaces are already configured, Codex support is included through `AGENTS.md`, `.codex/`, and `.agents/skills/`, and shared machine-level skills are available through `AI_SHARED_SKILLS_DIR`.
+That is all. Claude and Gemini surfaces are already configured, Codex support is included through `AGENTS.md`, `.codex/`, and `.agents/skills/`, OpenCode support is included through `.opencode/`, and shared machine-level skills are available through `AI_SHARED_SKILLS_DIR`.
 
 ```
 project-template/
@@ -88,6 +89,7 @@ project-template/
   AGENTS.md            <- Shared cross-harness instructions, auto-read by Codex
   SHARED-SKILLS.md     <- Machine-level shared skill workflow
   .codex/              <- Codex config, supplement, optional multi-agent roles
+  .opencode/           <- OpenCode config, instructions, generated commands, generated agent prompts
   USER-GUIDE.md        <- You are here
   BUILDING-SETUP.md    <- Run once: "Read BUILDING-SETUP.md and follow the instructions"
                           Self-installs as BUILDING.md (living build journal), then deletes itself
@@ -103,10 +105,12 @@ project-template/
   scripts/
     hooks/             <- Hook scripts (called by settings.json)
     gen-agents.js      <- Regenerate agents after editing .ai/agents/
+    gen-opencode-assets.js <- Regenerate .opencode commands/prompts from canonical sources
     export-codex-skills.js <- Regenerate .agents/skills/ from local skills + shared fallback
     publish-skills-to-shared.js <- Publish current project skills to AI_SHARED_SKILLS_DIR
     sync-shared-skills.js <- Install shared skills into a harness-global skill directory
     sync-project-template-to-codex.sh <- Sync Codex baseline and generate prompt files
+    install-global-git-hooks.sh <- Optional installer for machine-level git safety hooks
   skills/              <- Reference skill files for your stack
 ```
 

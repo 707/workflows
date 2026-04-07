@@ -3,13 +3,15 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const { HIGH_SIGNAL_SKILLS } = require('./skill-sets');
 
 const ROOT = path.resolve(__dirname, '..');
 const LOCAL_SKILLS_ROOT = path.join(ROOT, 'skills');
-const SHARED_ROOT = process.env.AI_SHARED_SKILLS_DIR || path.join(os.homedir(), '.shared-agent-skills');
+const SHARED_ROOT = process.env.AI_SHARED_SKILLS_DIR || path.join(os.homedir(), '.agent-skills');
 const args = process.argv.slice(2);
 const force = args.includes('--force');
 const all = args.includes('--all');
+const highSignal = args.includes('--high-signal');
 const isDryRun = args.includes('--dry-run');
 
 const skills = args.filter(arg => !arg.startsWith('--'));
@@ -43,8 +45,12 @@ if (all) {
     .sort();
 }
 
+if (highSignal) {
+  selected = HIGH_SIGNAL_SKILLS.slice();
+}
+
 if (selected.length === 0) {
-  console.error('Provide one or more skill names, or use --all.');
+  console.error('Provide one or more skill names, or use --all or --high-signal.');
   process.exit(1);
 }
 

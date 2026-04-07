@@ -1,6 +1,6 @@
 # Project Template
 
-A structured agent development scaffold for Claude Code, Gemini CLI, and Codex.
+A structured agent development scaffold for Claude Code, Gemini CLI, Codex, and OpenCode.
 
 ## What is this?
 
@@ -14,13 +14,15 @@ Specialist agents, slash commands, automatic quality hooks, Codex-facing skills,
 2. Open `CLAUDE.md` and fill in the PROJECT SETUP block at the top: project name, tech stack, issue tracker URL
 3. If you use Gemini CLI, review `GEMINI.md`
 4. If you use Codex CLI or the Codex macOS app, review `AGENTS.md` and `.codex/AGENTS.md`
-5. If you want reusable machine-level skills, set `AI_SHARED_SKILLS_DIR` and read `SHARED-SKILLS.md`
-6. Run `node scripts/export-codex-skills.js` after changing canonical skills in `skills/`
-7. (Optional) Run `bash scripts/sync-project-template-to-codex.sh` to sync the baseline into `~/.codex` and generate prompt-based command files
-8. (Optional) Ask Claude or Gemini: `"Read BUILDING-SETUP.md and follow the instructions"` — sets up your build journal and then deletes itself
-9. Start working — the harness-specific config and workflow files are already included
+5. If you use OpenCode, review `.opencode/README.md` and run `node scripts/gen-opencode-assets.js`
+6. If you want reusable machine-level skills, set `AI_SHARED_SKILLS_DIR` and read `SHARED-SKILLS.md`
+7. Run `node scripts/export-codex-skills.js` after changing canonical skills in `skills/`
+8. (Optional) Run `bash scripts/sync-project-template-to-codex.sh` to sync the baseline into `~/.codex` and generate prompt-based command files
+9. (Optional) Install the opt-in global git safety hooks with `bash scripts/install-global-git-hooks.sh`
+10. (Optional) Ask Claude or Gemini: `"Read BUILDING-SETUP.md and follow the instructions"` — sets up your build journal and then deletes itself
+11. Start working — the harness-specific config and workflow files are already included
 
-> Codex still does not provide true Claude-style hook parity. This template now adds the closest practical equivalents: generated prompt files, Codex role configs, and shared/global skill sync.
+> Codex still does not provide true Claude-style hook parity. This template now adds the closest practical equivalents: generated prompt files, Codex role configs, shared/global skill sync, and optional global git safety hooks.
 
 
 
@@ -42,6 +44,12 @@ Run `/handoff` at the end of any session to save state. The next session picks u
 
 Agents are defined once in `.ai/agents/`. Run `node scripts/gen-agents.js` to regenerate both `.claude/agents/` and `.gemini/agents/` from that single source. Edit agent instructions in `.ai/agents/` only.
 
+OpenCode-facing prompts and command shims are generated from the same canonical sources with:
+
+```bash
+node scripts/gen-opencode-assets.js
+```
+
 Codex-facing skills are exported from `skills/` into `.agents/skills/` with:
 
 ```bash
@@ -49,6 +57,12 @@ node scripts/export-codex-skills.js
 ```
 
 Machine-level shared skills are supported through `AI_SHARED_SKILLS_DIR` and the helper scripts documented in `SHARED-SKILLS.md`.
+
+If you want a curated reusable bundle instead of the full local skill set, publish just the high-signal workflow pack with:
+
+```bash
+node scripts/publish-skills-to-shared.js --high-signal
+```
 
 ### Contents
 
@@ -59,6 +73,7 @@ Machine-level shared skills are supported through `AI_SHARED_SKILLS_DIR` and the
 | `AGENTS.md` | Shared cross-harness workflow baseline, auto-read by Codex |
 | `SHARED-SKILLS.md` | Machine-level shared skill architecture and sync workflow |
 | `.codex/` | Codex config, supplement, and optional multi-agent role definitions |
+| `.opencode/` | OpenCode config, instructions, generated commands, and generated agent prompts |
 | `BUILDING-SETUP.md` | Self-installing wizard that generates your build journal |
 | `USER-GUIDE.md` | Explains every component and why it exists |
 | `.claude/agents/` | 10 specialist agents (planner, tdd-guide, code-reviewer, architect, security-reviewer, and more) |
@@ -67,5 +82,5 @@ Machine-level shared skills are supported through `AI_SHARED_SKILLS_DIR` and the
 | `.ai/agents/` | Platform-agnostic agent source — edit here, regenerate for Claude and Gemini |
 | `.agents/skills/` | Codex-facing export built from local skills plus shared fallback |
 | `.ai/tickets/` | Per-issue context files that preserve confirmed plans across sessions |
-| `scripts/` | Agent generation, Codex export/sync, shared-skill publish/sync, hook implementations |
-| `skills/` | 78+ canonical skills, including the full current Codex export surface |
+| `scripts/` | Agent generation, OpenCode generation, Codex export/sync, shared-skill publish/sync, and optional global git hook installers |
+| `skills/` | 78+ canonical skills, including the Codex export surface and curated high-signal workflow pack |
