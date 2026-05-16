@@ -80,6 +80,33 @@ async function main() {
           log(`[SessionStart] Loaded ticket context: ${ticketId}`);
         }
       }
+
+      // Surface recent run-trace events for this ticket so resumption sees what
+      // previous sessions actually did (Meta-Harness pattern — raw events > summary).
+      const eventsFile = path.join(process.cwd(), '.ai', 'runs', ticketId, 'events.jsonl');
+      if (fs.existsSync(eventsFile)) {
+        try {
+          const lines = fs.readFileSync(eventsFile, 'utf8').split('\n').filter(Boolean);
+          const recent = lines.slice(-10);
+          if (recent.length > 0) {
+            const formatted = recent.map(l => {
+              try {
+                const e = JSON.parse(l);
+                const parts = [e.ts, e.event, e.agent || ''].filter(Boolean);
+                if (e.tools_used && e.tools_used.length) parts.push(`tools=${e.tools_used.join(',')}`);
+                if (e.files_modified && e.files_modified.length) parts.push(`files=${e.files_modified.length}`);
+                return `- ${parts.join(' | ')}`;
+              } catch {
+                return `- ${l}`;
+              }
+            }).join('\n');
+            output(`Recent run events for ${ticketId} (last ${recent.length} of ${lines.length}):\n${formatted}`);
+            log(`[SessionStart] Loaded ${recent.length} trace event(s) for ${ticketId}`);
+          }
+        } catch (err) {
+          log(`[SessionStart] Failed to read trace ${eventsFile}: ${err.message}`);
+        }
+      }
     }
   }
 
