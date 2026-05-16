@@ -205,7 +205,31 @@ A PR is **not atomic** when any of these are true:
 
 ---
 
-## 7. Agent Dispatch Table
+## 7. Model Selection
+
+Routing is defined in `models.json` at the repo root — the single source of truth for which model handles which role. Gemini CLI selects via its own model flag, but the role table below mirrors the canonical lineup so cross-harness sessions stay consistent.
+
+**Current lineup (April 2026):** Opus 4.7, Sonnet 4.6, Haiku 4.5 (Claude). Gemini CLI default: gemini-2.5-pro for agent work.
+
+| Role     | Claude model | Gemini default | Use for |
+|----------|--------------|----------------|---------|
+| `plan`     | Sonnet 4.6 | gemini-2.5-pro | Planning — `/plan`, `planner` agent |
+| `execute`  | Sonnet 4.6 | gemini-2.5-pro | TDD, refactoring, code generation |
+| `review`   | Sonnet 4.6 | gemini-2.5-pro | Standard code review |
+| `think`    | Opus 4.7   | gemini-2.5-pro | Architecture, multi-system debugging, large-refactor review |
+| `critique` | Opus 4.7   | gemini-2.5-pro | Adversarial review — `security-reviewer` |
+| `observe`  | Haiku 4.5  | gemini-2.5-flash | Hooks, classifiers, log summarization |
+| `fallback` | Sonnet 4.6 | gemini-2.5-pro | When role is unspecified |
+
+**Escalate to a stronger model** when: the current model is stuck after one clear retry, an architectural decision has multi-quarter consequences, or you're reviewing a refactor where missing a subtle dependency would cause regression.
+
+**Use the cheap model** for: hooks, observers, classifiers, log summarization. Do not call expensive models from a hook.
+
+**Updating models**: edit `models.json`, then `node scripts/gen-agents.js`. Do not hand-edit `model:` fields in `.gemini/agents/` — they are regenerated.
+
+---
+
+## 8. Agent Dispatch Table
 
 Use specialized agents proactively. Launch agents without waiting for user prompts when conditions below are met.
 
@@ -225,7 +249,7 @@ Use specialized agents proactively. Launch agents without waiting for user promp
 
 ---
 
-## 8. Git Conventions
+## 9. Git Conventions
 
 ### Branch Naming
 
@@ -259,7 +283,7 @@ Do not take these actions without explicit user confirmation:
 
 ---
 
-## 9. Templates
+## 10. Templates
 
 ### Issue Template
 
@@ -311,7 +335,7 @@ Closes [issue link or ID]
 
 ## Review
 - [ ] `/code-review` passed — no CRITICAL/HIGH issues
-- [ ] Security checklist cleared (§10)
+- [ ] Security checklist cleared (§11)
 
 ## Risks
 [What could go wrong? What should reviewers watch for?]
@@ -330,7 +354,7 @@ Format as a comment for [issue link].
 
 ---
 
-## 10. Security Checklist
+## 11. Security Checklist
 
 **Before ANY commit:**
 - [ ] No hardcoded API keys, secrets, passwords, or tokens
@@ -348,7 +372,7 @@ Format as a comment for [issue link].
 
 ---
 
-## 11. Working with Ticket Context
+## 12. Working with Ticket Context
 
 This section is specific to Gemini and cross-agent handoffs.
 
@@ -388,7 +412,7 @@ This section is specific to Gemini and cross-agent handoffs.
 
 ---
 
-## 12. Quick Reference
+## 13. Quick Reference
 
 ### Decision: What should I do right now?
 
