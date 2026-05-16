@@ -219,6 +219,70 @@ function grade(fixture, events) {
     }
   }
 
+  // must_invoke_agent — checks for Task tool dispatch with subagent_type matching
+  if (expects.must_invoke_agent) {
+    const wanted = expects.must_invoke_agent;
+    const taskCalls = toolUses.filter(t => (t.name || t.tool_name) === 'Task');
+    const hit = taskCalls.some(t => {
+      const input = t.input || t.tool_input || {};
+      return input.subagent_type === wanted || (input.description || '').toLowerCase().includes(wanted.toLowerCase());
+    });
+    findings.push({ pass: hit, check: `invoked agent ${wanted} via Task dispatch` });
+  }
+
+  // Assistant text content — pooled for severity / mention checks below.
+  const assistantText = events
+    .filter(e => e.type === 'assistant' && Array.isArray(e.message?.content))
+    .flatMap(e => e.message.content)
+    .filter(b => b.type === 'text' || typeof b.text === 'string')
+    .map(b => b.text || '')
+    .join('\n');
+
+  // must_report_finding_at_severity — assistant output must mention the severity level.
+  if (expects.must_report_finding_at_severity) {
+    const sev = expects.must_report_finding_at_severity.toUpperCase();
+    const re = new RegExp(`\\b${sev}\\b`);
+    findings.push({ pass: re.test(assistantText.toUpperCase()), check: `assistant output mentions severity ${sev}` });
+  }
+
+  // must_mention_in_findings — case-insensitive substring match against assistant output.
+  if (Array.isArray(expects.must_mention_in_findings)) {
+    const lower = assistantText.toLowerCase();
+    for (const phrase of expects.must_mention_in_findings) {
+      findings.push({ pass: lower.includes(phrase.toLowerCase()), check: `assistant output mentions "${phrase}"` });
+    }
+  }
+
+  // ticket_count_min / ticket_count_max — count gh issue create + linear issues create invocations.
+  if (typeof expects.ticket_count_min === 'number' || typeof expects.ticket_count_max === 'number') {
+    const ticketCalls = bashCmds.filter(c =>
+      /\bgh\s+issue\s+create\b/.test(c) || /\blinear\s+issues\s+create\b/.test(c)
+    ).length;
+    if (typeof expects.ticket_count_min === 'number') {
+      findings.push({ pass: ticketCalls >= expects.ticket_count_min, check: `created >= ${expects.ticket_count_min} tickets (got ${ticketCalls})` });
+    }
+    if (typeof expects.ticket_count_max === 'number') {
+      findings.push({ pass: ticketCalls <= expects.ticket_count_max, check: `created <= ${expects.ticket_count_max} tickets (got ${ticketCalls})` });
+    }
+  }
+
+  // each_ticket_must_contain — every Write to a context.md must include all required strings.
+  if (Array.isArray(expects.each_ticket_must_contain)) {
+    const ticketWrites = toolUses.filter(t => {
+      const name = t.name || t.tool_name;
+      const fp = t.input?.file_path || t.tool_input?.file_path || '';
+      return name === 'Write' && /\.ai\/tickets\/[^/]+\/context\.md$/.test(fp);
+    });
+    if (ticketWrites.length === 0) {
+      findings.push({ pass: false, check: `expected at least one ticket context.md written` });
+    } else {
+      for (const phrase of expects.each_ticket_must_contain) {
+        const allHave = ticketWrites.every(t => (t.input?.content || t.tool_input?.content || '').includes(phrase));
+        findings.push({ pass: allHave, check: `every ticket context.md contains "${phrase}"` });
+      }
+    }
+  }
+
   return findings;
 }
 
