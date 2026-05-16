@@ -414,19 +414,31 @@ Here's the code [agent 1] wrote. Review it critically. What could go wrong? What
 
 ## 6. Model Selection
 
-**Default: Claude Sonnet 4.6** — use for all planning, implementation, and review tasks.
+Routing is defined in `models.json` at the repo root — the single source of truth for which model handles which role.
 
-Escalate to **Claude Opus 4.6** only when:
-- Architectural decisions with significant long-term consequences
+**Current lineup (April 2026):** Opus 4.7, Sonnet 4.6, Haiku 4.5.
+
+| Role     | Model           | Use for |
+|----------|-----------------|---------|
+| `plan`     | Sonnet 4.6 | Planning sessions — `/plan`, `planner` agent |
+| `execute`  | Sonnet 4.6 | TDD, refactoring, code generation — default for `tdd-guide`, `build-error-resolver`, `e2e-runner`, `refactor-cleaner` |
+| `review`   | Sonnet 4.6 | Standard code review — `code-reviewer`, `database-reviewer` |
+| `think`    | Opus 4.7   | Architectural decisions, multi-system debugging, large-refactor review — `architect`, `harness-optimizer` |
+| `critique` | Opus 4.7   | Adversarial review — `security-reviewer` |
+| `observe`  | Haiku 4.5  | Hooks, observers, classifiers, log summarization, session summarization |
+| `fallback` | Sonnet 4.6 | Default when role is unspecified |
+
+**Escalate Sonnet → Opus** when:
+- Sonnet is stuck after one clear retry
+- Architectural decisions with multi-quarter consequences
 - Debugging a complex multi-system failure with no clear entry point
-- Reviewing a large multi-file refactor where missing a subtle dependency could cause a regression
+- Reviewing a large multi-file refactor where a subtle missed dependency would cause regression
 
-Do not use Opus by default. The cost and latency aren't worth it for routine work. If Sonnet gets stuck, try a clearer prompt before escalating.
+**Use Haiku for**: anything cheap and frequent — hook scripts, log scanners, summarizers, classifiers. Do not call Sonnet/Opus from a hook.
 
-**Other models**: If your workflow includes other AI tools, define them here:
-```
-[Model / tool] → [specific use case in this project]
-```
+**Fast mode**: `/fast` toggles Opus 4.6 fast output (lower latency, same model family); useful for iterative architecture conversations.
+
+**Updating models**: edit `models.json`, then `node scripts/gen-agents.js`. Do not hand-edit `model:` fields in `.claude/agents/` or `.gemini/agents/` — they are regenerated.
 
 ### CLI over MCP
 
