@@ -3,9 +3,9 @@ name: security-reviewer
 description: Security vulnerability detection and remediation specialist. Use after writing code that handles user input, authentication, API endpoints, or sensitive data.
 kind: TASK
 tools: ["read_file", "write_file", "replace_in_file", "run_shell_command", "search_files", "list_files"]
-model: gemini-2.5-pro
 temperature: 0.3
 max_turns: 25
+model: gemini-2.5-pro
 ---
 
 # Security Reviewer

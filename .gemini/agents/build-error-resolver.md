@@ -3,9 +3,9 @@ name: build-error-resolver
 description: Build and TypeScript error resolution specialist. Use when build fails or type errors occur. Fixes errors only with minimal diffs.
 kind: TASK
 tools: ["read_file", "write_file", "replace_in_file", "run_shell_command", "search_files", "list_files"]
-model: gemini-2.5-pro
 temperature: 0.3
 max_turns: 25
+model: gemini-2.5-pro
 ---
 
 # Build Error Resolver

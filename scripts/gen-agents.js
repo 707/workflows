@@ -23,8 +23,40 @@ const AI_AGENTS_DIR = path.join(ROOT, '.ai', 'agents');
 const CLAUDE_AGENTS_DIR = path.join(ROOT, '.claude', 'agents');
 const GEMINI_AGENTS_DIR = path.join(ROOT, '.gemini', 'agents');
 const CONFIG_FILE = path.join(__dirname, 'agent-config.json');
+const MODELS_FILE = path.join(ROOT, 'models.json');
 
 const isDryRun = process.argv.includes('--dry-run');
+
+function loadModels() {
+  if (!fs.existsSync(MODELS_FILE)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(MODELS_FILE, 'utf8'));
+  } catch (err) {
+    console.warn(`[gen-agents] Failed to parse ${MODELS_FILE}: ${err.message}`);
+    return null;
+  }
+}
+
+/**
+ * Resolve a config block's `role` into a concrete `model` field using models.json.
+ *
+ * Precedence: explicit `model` (kept) > role lookup > existing model > unset.
+ * The `role` field is stripped from the emitted frontmatter (Claude/Gemini don't
+ * understand it).
+ *
+ * Platform = 'claude' uses roles[r].model; 'gemini' uses roles[r].gemini.
+ */
+function resolveRole(config, platform, models) {
+  const out = { ...config };
+  const role = out.role;
+  delete out.role;
+  if (!role) return out;
+  if (!models || !models.roles || !models.roles[role]) return out;
+  const roleCfg = models.roles[role];
+  const resolved = platform === 'gemini' ? roleCfg.gemini : roleCfg.model;
+  if (resolved && !out.model) out.model = resolved;
+  return out;
+}
 
 function ensureDir(dir) {
   if (!fs.existsSync(dir)) {
@@ -69,6 +101,12 @@ function main() {
     process.exit(1);
   }
   const config = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
+  const models = loadModels();
+  if (models) {
+    console.log(`Loaded models.json — ${Object.keys(models.roles || {}).length} role(s) available for resolution.\n`);
+  } else {
+    console.log(`No models.json found — agents will use any explicit "model" field as-is.\n`);
+  }
 
   // Ensure output dirs exist
   if (!isDryRun) {
@@ -96,15 +134,17 @@ function main() {
 
     console.log(`${name}:`);
 
-    // Generate Claude agent
+    // Generate Claude agent — resolve role to model from models.json
     if (agentConfig.claude) {
-      generateAgent(name, body, agentConfig.claude, CLAUDE_AGENTS_DIR);
+      const resolved = resolveRole(agentConfig.claude, 'claude', models);
+      generateAgent(name, body, resolved, CLAUDE_AGENTS_DIR);
       claudeCount++;
     }
 
-    // Generate Gemini agent
+    // Generate Gemini agent — resolve role to gemini-specific model
     if (agentConfig.gemini) {
-      generateAgent(name, body, agentConfig.gemini, GEMINI_AGENTS_DIR);
+      const resolved = resolveRole(agentConfig.gemini, 'gemini', models);
+      generateAgent(name, body, resolved, GEMINI_AGENTS_DIR);
       geminiCount++;
     }
   }

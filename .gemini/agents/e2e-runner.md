@@ -3,9 +3,9 @@ name: e2e-runner
 description: End-to-end testing specialist using Playwright. Use for generating, maintaining, and running E2E tests on critical user flows.
 kind: TASK
 tools: ["read_file", "write_file", "replace_in_file", "run_shell_command", "search_files", "list_files"]
-model: gemini-2.5-pro
 temperature: 0.5
 max_turns: 30
+model: gemini-2.5-pro
 ---
 
 # E2E Test Runner

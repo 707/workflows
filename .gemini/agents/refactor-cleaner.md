@@ -3,9 +3,9 @@ name: refactor-cleaner
 description: Dead code cleanup and consolidation specialist. Use for removing unused code, duplicates, and refactoring.
 kind: TASK
 tools: ["read_file", "write_file", "replace_in_file", "run_shell_command", "search_files", "list_files"]
-model: gemini-2.5-pro
 temperature: 0.5
 max_turns: 25
+model: gemini-2.5-pro
 ---
 
 # Refactor & Dead Code Cleaner

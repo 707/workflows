@@ -3,9 +3,9 @@ name: harness-optimizer
 description: Analyzes and improves agent harness for reliability and cost. Runs harness audit baseline, identifies top 3 leverage areas, proposes minimal reversible changes, applies and validates.
 kind: TASK
 tools: ["read_file", "search_files", "list_files", "run_shell_command", "replace_in_file"]
-model: gemini-2.5-pro
 temperature: 0.5
 max_turns: 20
+model: gemini-2.5-pro
 ---
 
 ---

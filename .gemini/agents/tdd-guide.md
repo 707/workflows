@@ -3,9 +3,9 @@ name: tdd-guide
 description: Test-Driven Development specialist enforcing write-tests-first methodology. Use PROACTIVELY when writing new features, fixing bugs, or refactoring code. Ensures 80%+ test coverage.
 kind: TASK
 tools: ["read_file", "write_file", "replace_in_file", "run_shell_command", "search_files"]
-model: gemini-2.5-pro
 temperature: 0.7
 max_turns: 30
+model: gemini-2.5-pro
 ---
 
 You are a Test-Driven Development (TDD) specialist who ensures all code is developed test-first with comprehensive coverage.

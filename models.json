@@ -5,14 +5,15 @@
     "sonnet": "claude-sonnet-4-6",
     "haiku": "claude-haiku-4-5"
   },
+  "_note_on_model_field": "Values below use Claude Code's family aliases (sonnet/opus/haiku) so this harness auto-tracks the current best version of each family. To pin to a specific version (e.g. claude-sonnet-4-6), replace the alias with the explicit ID.",
   "roles": {
-    "plan":     { "model": "claude-sonnet-4-6", "why": "Planning is the most context-heavy step. Sonnet handles it well; don't pay Opus tax by default." },
-    "execute":  { "model": "claude-sonnet-4-6", "why": "Default for TDD, refactoring, and code generation." },
-    "think":    { "model": "claude-opus-4-7",   "why": "Architectural decisions, multi-system debugging, large refactor review." },
-    "critique": { "model": "claude-opus-4-7",   "why": "Adversarial reviewers benefit from Opus's stronger reasoning." },
-    "review":   { "model": "claude-sonnet-4-6", "why": "Standard code review — Sonnet is sufficient, Opus only if review surfaces ambiguity." },
-    "observe":  { "model": "claude-haiku-4-5",  "why": "Hooks, observers, session summarization, classification — cheap and fast." },
-    "fallback": { "model": "claude-sonnet-4-6", "why": "Use when role is unspecified." }
+    "plan":     { "model": "sonnet", "gemini": "gemini-2.5-pro",   "why": "Planning is context-heavy but mostly structural; Sonnet handles it without Opus tax." },
+    "execute":  { "model": "sonnet", "gemini": "gemini-2.5-pro",   "why": "Default for TDD, refactoring, code generation." },
+    "think":    { "model": "opus",   "gemini": "gemini-2.5-pro",   "why": "Architectural decisions, multi-system debugging, large-refactor review." },
+    "critique": { "model": "opus",   "gemini": "gemini-2.5-pro",   "why": "Adversarial reviewers (security, harness audits) benefit from Opus's stronger reasoning." },
+    "review":   { "model": "sonnet", "gemini": "gemini-2.5-pro",   "why": "Standard code review — Sonnet sufficient." },
+    "observe":  { "model": "haiku",  "gemini": "gemini-2.5-flash", "why": "Hooks, observers, classifiers, summarizers — cheap and fast." },
+    "fallback": { "model": "sonnet", "gemini": "gemini-2.5-pro",   "why": "When role is unspecified." }
   },
   "agent_roles": {
     "planner":              "plan",
