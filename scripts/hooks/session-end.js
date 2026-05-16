@@ -201,19 +201,44 @@ ${summarySection}
     log(`[SessionEnd] Created session file: ${sessionFile}`);
   }
 
-  // Update active ticket metadata (Last Updated, Last Agent)
+  // Update active ticket metadata + append run trace (JSONL) — Meta-Harness pattern.
+  // Trace lives at .ai/runs/{ticket}/events.jsonl so an evolver subagent can read
+  // raw events later, not summaries (Meta-Harness ablation: raw > summary by ~15 pts).
   const activeTicketFile = path.join(process.cwd(), '.ai', 'tickets', 'active.md');
   if (fs.existsSync(activeTicketFile)) {
     const activeContent = readFile(activeTicketFile);
-    const ticketIdMatch = activeContent && activeContent.match(/^(GH-\d+|\d+)$/m);
+    // Support GH-N, ENG-N (Linear), and bare N.
+    const ticketIdMatch = activeContent && activeContent.match(/^([A-Z]+-\d+|\d+)$/m);
     if (ticketIdMatch) {
       const rawId = ticketIdMatch[1];
-      const ticketId = rawId.startsWith('GH-') ? rawId : `GH-${rawId}`;
+      const ticketId = /^[A-Z]+-\d+$/.test(rawId) ? rawId : `GH-${rawId}`;
       const contextFile = path.join(process.cwd(), '.ai', 'tickets', ticketId, 'context.md');
       if (fs.existsSync(contextFile)) {
         replaceInFile(contextFile, /\*\*Last Updated:\*\*.*/, `**Last Updated:** ${currentTime}`);
         replaceInFile(contextFile, /\*\*Last Agent:\*\*.*/, `**Last Agent:** claude-code`);
         log(`[SessionEnd] Updated ticket context metadata: ${ticketId}`);
+      }
+
+      // Append a session_end event to the per-ticket run log.
+      const runsDir = path.join(process.cwd(), '.ai', 'runs', ticketId);
+      ensureDir(runsDir);
+      const eventsFile = path.join(runsDir, 'events.jsonl');
+      const event = {
+        ts: new Date().toISOString(),
+        event: 'session_end',
+        ticket: ticketId,
+        session_id: shortId,
+        agent: 'claude-code',
+        tools_used: summary ? summary.toolsUsed : [],
+        files_modified: summary ? summary.filesModified : [],
+        user_message_count: summary ? summary.totalMessages : 0,
+        transcript_path: transcriptPath || null
+      };
+      try {
+        fs.appendFileSync(eventsFile, JSON.stringify(event) + '\n', 'utf8');
+        log(`[SessionEnd] Appended run event: ${eventsFile}`);
+      } catch (err) {
+        log(`[SessionEnd] Failed to append run event: ${err.message}`);
       }
     }
   }
