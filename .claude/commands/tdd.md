@@ -36,12 +36,21 @@ Before starting any implementation, the tdd-guide agent will:
 4. Pull the real issue body from the tracker:
    - GitHub: `gh issue view {N} --json title,body,labels`
    - Linear: `linear issues get {ID} --format full`
-5. Check if already on a feature branch for this issue. If on `main`/`master`, create one:
-   ```
-   git checkout -b feature/{issue-id}-{title-slug}
-   ```
-   Example: `feature/GH-42-add-notifications`, `feature/ENG-42-add-notifications`
-6. Report: "Loaded GH-{N}: {title}. Branch: feature/{issue-id}-{slug}. Resuming from: {next action}."
+5. **Isolation: worktree by default** — each ticket gets its own working tree under `.ai/worktrees/{issue-id}/` so multiple `/tdd` sessions can run in parallel without context collision. To opt out and use the current tree, pass `--no-worktree`.
+   - If `--no-worktree` is passed OR a worktree already exists for this ticket: skip the creation step.
+   - Otherwise:
+     ```
+     git worktree add .ai/worktrees/{issue-id} -b feature/{issue-id}-{title-slug}
+     cd .ai/worktrees/{issue-id}
+     ```
+   - If `--no-worktree` was passed and you're on `main`/`master`, fall back to the old behavior:
+     ```
+     git checkout -b feature/{issue-id}-{title-slug}
+     ```
+   Example worktree path: `.ai/worktrees/GH-42/`, branch: `feature/GH-42-add-notifications`.
+6. Report: "Loaded GH-{N}: {title}. Worktree: `.ai/worktrees/GH-{N}/` (branch `feature/{issue-id}-{slug}`). Resuming from: {next action}."
+
+**Worktree cleanup**: after the PR merges, prune with `git worktree remove .ai/worktrees/{issue-id}`. The `/handoff` command logs a reminder.
 
 **If no argument was passed:**
 

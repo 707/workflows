@@ -165,7 +165,7 @@ Use the Issue Template in §8 as the body template.
 
 Required behaviors:
 - Start EVERY implementation in a fresh context
-- Use `/tdd ISSUE-ID` — one command loads the issue from the tracker, reads the ticket context, creates the feature branch (`feature/GH-42-title-slug`), and starts TDD
+- Use `/tdd ISSUE-ID` — one command loads the issue from the tracker, reads the ticket context, creates a git worktree at `.ai/worktrees/{ISSUE-ID}/` on branch `feature/GH-42-title-slug`, and starts TDD. Pass `--no-worktree` to work in the current tree instead.
 - Never implement multiple issues in one context session
 - TDD cycle: write failing test → implement minimal code → **commit after GREEN** → refactor → verify coverage
 - Commit format: `feat: add X` / `fix: resolve Y` (conventional commits) with issue reference in body
@@ -656,7 +656,7 @@ or for Linear:
 ```
 /tdd ENG-42
 ```
-This loads the issue from the tracker, reads the ticket context, creates the feature branch, and starts TDD — all in one command.
+This loads the issue from the tracker, reads the ticket context, creates a worktree at `.ai/worktrees/{ISSUE-ID}/` with the feature branch checked out, and starts TDD — all in one command. Pass `--no-worktree` to skip the worktree and use the current tree.
 
 ### Prevent Scope Creep
 ```
@@ -804,7 +804,7 @@ Each issue that goes through `/plan` gets a `.ai/tickets/{ISSUE-ID}/context.md` 
 5. Status: `planning-complete`
 
 **Implementing in Claude (reads the context):**
-- `/tdd GH-42` or `/tdd ENG-42` — one command sets the active ticket, pulls the issue from the tracker, reads the context, creates the feature branch, and starts TDD
+- `/tdd GH-42` or `/tdd ENG-42` — one command sets the active ticket, pulls the issue from the tracker, reads the context, creates a worktree at `.ai/worktrees/{ISSUE-ID}/` with the feature branch checked out, and starts TDD
 - Session-start hook auto-injects the active ticket context at session start
 - Status updates happen automatically (Last Updated, Last Agent)
 

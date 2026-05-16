@@ -10,6 +10,9 @@
 # Eval runs (transcripts + run-id directories) — local-only
 evals/runs/
 
+# Per-ticket worktrees — created by /tdd, removed after PR merge
+.ai/worktrees/
+
 # Node
 node_modules/
 
