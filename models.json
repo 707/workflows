@@ -1,0 +1,35 @@
+{
+  "_doc": "Single source of truth for model routing across this harness. Agents declare a role; this file maps role -> concrete model ID. Update model IDs here and regenerate agents with `node scripts/gen-agents.js`.",
+  "current_lineup": {
+    "opus": "claude-opus-4-7",
+    "sonnet": "claude-sonnet-4-6",
+    "haiku": "claude-haiku-4-5"
+  },
+  "roles": {
+    "plan":     { "model": "claude-sonnet-4-6", "why": "Planning is the most context-heavy step. Sonnet handles it well; don't pay Opus tax by default." },
+    "execute":  { "model": "claude-sonnet-4-6", "why": "Default for TDD, refactoring, and code generation." },
+    "think":    { "model": "claude-opus-4-7",   "why": "Architectural decisions, multi-system debugging, large refactor review." },
+    "critique": { "model": "claude-opus-4-7",   "why": "Adversarial reviewers benefit from Opus's stronger reasoning." },
+    "review":   { "model": "claude-sonnet-4-6", "why": "Standard code review — Sonnet is sufficient, Opus only if review surfaces ambiguity." },
+    "observe":  { "model": "claude-haiku-4-5",  "why": "Hooks, observers, session summarization, classification — cheap and fast." },
+    "fallback": { "model": "claude-sonnet-4-6", "why": "Use when role is unspecified." }
+  },
+  "agent_roles": {
+    "planner":              "plan",
+    "tdd-guide":            "execute",
+    "code-reviewer":        "review",
+    "architect":            "think",
+    "security-reviewer":    "critique",
+    "build-error-resolver": "execute",
+    "database-reviewer":    "review",
+    "e2e-runner":           "execute",
+    "refactor-cleaner":     "execute",
+    "harness-optimizer":    "think"
+  },
+  "escalation_rules": [
+    "Sonnet stuck after one clear retry  -> escalate to Opus",
+    "Architectural decision with multi-quarter consequence -> Opus from start",
+    "Multi-system bug with no clear entry point -> Opus from start",
+    "Hooks, observers, classifiers, log summarization -> Haiku always"
+  ]
+}
