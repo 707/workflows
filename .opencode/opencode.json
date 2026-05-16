@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "anthropic/claude-sonnet-4-5",
+  "model": "anthropic/claude-sonnet-4-6",
   "small_model": "anthropic/claude-haiku-4-5",
   "default_agent": "build",
   "instructions": [
@@ -34,57 +34,21 @@
       }
     },
     "planner": {
-      "description": "Planning specialist for implementation plans and refactors.",
+      "description": "Expert planning specialist for complex features and refactoring. Use PROACTIVELY when users request feature implementation, architectural changes, or complex refactoring. Automatically activated for planning tasks.",
       "mode": "subagent",
-      "model": "anthropic/claude-opus-4-5",
+      "model": "anthropic/claude-sonnet-4-6",
       "prompt": "{file:prompts/agents/planner.txt}",
       "tools": {
         "read": true,
-        "bash": true,
+        "bash": false,
         "write": false,
         "edit": false
-      }
-    },
-    "architect": {
-      "description": "Architecture specialist for system design and trade-offs.",
-      "mode": "subagent",
-      "model": "anthropic/claude-opus-4-5",
-      "prompt": "{file:prompts/agents/architect.txt}",
-      "tools": {
-        "read": true,
-        "bash": true,
-        "write": false,
-        "edit": false
-      }
-    },
-    "code-reviewer": {
-      "description": "Reviewer focused on correctness, maintainability, and regressions.",
-      "mode": "subagent",
-      "model": "anthropic/claude-opus-4-5",
-      "prompt": "{file:prompts/agents/code-reviewer.txt}",
-      "tools": {
-        "read": true,
-        "bash": true,
-        "write": false,
-        "edit": false
-      }
-    },
-    "security-reviewer": {
-      "description": "Security specialist for user input, auth, and API risk review.",
-      "mode": "subagent",
-      "model": "anthropic/claude-opus-4-5",
-      "prompt": "{file:prompts/agents/security-reviewer.txt}",
-      "tools": {
-        "read": true,
-        "bash": true,
-        "write": true,
-        "edit": true
       }
     },
     "tdd-guide": {
-      "description": "TDD specialist for tests-first implementation and coverage discipline.",
+      "description": "Test-Driven Development specialist enforcing write-tests-first methodology. Use PROACTIVELY when writing new features, fixing bugs, or refactoring code. Ensures 80%+ test coverage.",
       "mode": "subagent",
-      "model": "anthropic/claude-opus-4-5",
+      "model": "anthropic/claude-sonnet-4-6",
       "prompt": "{file:prompts/agents/tdd-guide.txt}",
       "tools": {
         "read": true,
@@ -93,10 +57,46 @@
         "edit": true
       }
     },
-    "build-error-resolver": {
-      "description": "Build and type error resolver focused on minimal fixes.",
+    "code-reviewer": {
+      "description": "Expert code review specialist. Proactively reviews code for quality, security, and maintainability. Use immediately after writing or modifying code. MUST BE USED for all code changes.",
       "mode": "subagent",
-      "model": "anthropic/claude-opus-4-5",
+      "model": "anthropic/claude-sonnet-4-6",
+      "prompt": "{file:prompts/agents/code-reviewer.txt}",
+      "tools": {
+        "read": true,
+        "bash": true,
+        "write": false,
+        "edit": false
+      }
+    },
+    "architect": {
+      "description": "Software architecture specialist for system design, scalability, and technical decision-making. Use PROACTIVELY when planning new features, refactoring large systems, or making architectural decisions.",
+      "mode": "subagent",
+      "model": "anthropic/claude-opus-4-7",
+      "prompt": "{file:prompts/agents/architect.txt}",
+      "tools": {
+        "read": true,
+        "bash": false,
+        "write": false,
+        "edit": false
+      }
+    },
+    "security-reviewer": {
+      "description": "Security vulnerability detection and remediation specialist. Use PROACTIVELY after writing code that handles user input, authentication, API endpoints, or sensitive data. Flags secrets, SSRF, injection, unsafe crypto, and OWASP Top 10 vulnerabilities.",
+      "mode": "subagent",
+      "model": "anthropic/claude-opus-4-7",
+      "prompt": "{file:prompts/agents/security-reviewer.txt}",
+      "tools": {
+        "read": true,
+        "bash": true,
+        "write": true,
+        "edit": true
+      }
+    },
+    "build-error-resolver": {
+      "description": "Build and TypeScript error resolution specialist. Use PROACTIVELY when build fails or type errors occur. Fixes build/type errors only with minimal diffs, no architectural edits. Focuses on getting the build green quickly.",
+      "mode": "subagent",
+      "model": "anthropic/claude-sonnet-4-6",
       "prompt": "{file:prompts/agents/build-error-resolver.txt}",
       "tools": {
         "read": true,
@@ -105,22 +105,10 @@
         "edit": true
       }
     },
-    "e2e-runner": {
-      "description": "E2E specialist for critical user journeys and test maintenance.",
-      "mode": "subagent",
-      "model": "anthropic/claude-opus-4-5",
-      "prompt": "{file:prompts/agents/e2e-runner.txt}",
-      "tools": {
-        "read": true,
-        "bash": true,
-        "write": true,
-        "edit": true
-      }
-    },
     "database-reviewer": {
-      "description": "Database specialist for schema, migrations, and performance issues.",
+      "description": "PostgreSQL database specialist for query optimization, schema design, security, and performance. Use PROACTIVELY when writing SQL, creating migrations, designing schemas, or troubleshooting database performance. Incorporates Supabase best practices.",
       "mode": "subagent",
-      "model": "anthropic/claude-opus-4-5",
+      "model": "anthropic/claude-sonnet-4-6",
       "prompt": "{file:prompts/agents/database-reviewer.txt}",
       "tools": {
         "read": true,
@@ -129,10 +117,22 @@
         "edit": true
       }
     },
-    "refactor-cleaner": {
-      "description": "Refactoring specialist for dead code cleanup and consolidation.",
+    "e2e-runner": {
+      "description": "End-to-end testing specialist using Vercel Agent Browser (preferred) with Playwright fallback. Use PROACTIVELY for generating, maintaining, and running E2E tests. Manages test journeys, quarantines flaky tests, uploads artifacts (screenshots, videos, traces), and ensures critical user flows work.",
       "mode": "subagent",
-      "model": "anthropic/claude-opus-4-5",
+      "model": "anthropic/claude-sonnet-4-6",
+      "prompt": "{file:prompts/agents/e2e-runner.txt}",
+      "tools": {
+        "read": true,
+        "bash": true,
+        "write": true,
+        "edit": true
+      }
+    },
+    "refactor-cleaner": {
+      "description": "Dead code cleanup and consolidation specialist. Use PROACTIVELY for removing unused code, duplicates, and refactoring. Runs analysis tools (knip, depcheck, ts-prune) to identify dead code and safely removes it.",
+      "mode": "subagent",
+      "model": "anthropic/claude-sonnet-4-6",
       "prompt": "{file:prompts/agents/refactor-cleaner.txt}",
       "tools": {
         "read": true,
@@ -142,15 +142,64 @@
       }
     },
     "harness-optimizer": {
-      "description": "Harness reviewer focused on reliability, cost, and throughput.",
+      "description": "Analyzes and improves agent harness for reliability and cost. Runs /harness-audit baseline, identifies top 3 leverage areas, proposes minimal reversible changes, applies and validates, reports deltas.",
       "mode": "subagent",
-      "model": "anthropic/claude-sonnet-4-5",
+      "model": "anthropic/claude-opus-4-7",
       "prompt": "{file:prompts/agents/harness-optimizer.txt}",
       "tools": {
         "read": true,
         "bash": true,
         "write": true,
         "edit": true
+      }
+    },
+    "eval-harness": {
+      "description": "Runs the harness eval suite and produces a deterministic pass/fail report.",
+      "mode": "subagent",
+      "model": "anthropic/claude-sonnet-4-6",
+      "prompt": "{file:prompts/agents/eval-harness.txt}",
+      "tools": {
+        "read": true,
+        "bash": true,
+        "write": false,
+        "edit": false
+      }
+    },
+    "skill-stocktake": {
+      "description": "Audits skills and agents for drift and duplication. Read-only.",
+      "mode": "subagent",
+      "model": "anthropic/claude-sonnet-4-6",
+      "prompt": "{file:prompts/agents/skill-stocktake.txt}",
+      "tools": {
+        "read": true,
+        "bash": true,
+        "write": false,
+        "edit": false
+      }
+    },
+    "deep-research": {
+      "description": "Multi-source research specialist returning cited reports.",
+      "mode": "subagent",
+      "model": "anthropic/claude-opus-4-7",
+      "prompt": "{file:prompts/agents/deep-research.txt}",
+      "tools": {
+        "read": true,
+        "bash": true,
+        "write": false,
+        "edit": false,
+        "webfetch": true
+      }
+    },
+    "security-scan": {
+      "description": "Read-only audit of harness configuration security.",
+      "mode": "subagent",
+      "model": "anthropic/claude-opus-4-7",
+      "prompt": "{file:prompts/agents/security-scan.txt}",
+      "tools": {
+        "read": true,
+        "bash": true,
+        "write": false,
+        "edit": false
       }
     }
   }

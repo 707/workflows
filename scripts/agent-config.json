@@ -168,5 +168,125 @@
       "temperature": 0.5,
       "max_turns": 20
     }
+  },
+  "eval-harness": {
+    "claude": {
+      "name": "eval-harness",
+      "description": "Runs the harness eval suite, scores fixtures, produces a deterministic pass/fail report. Use PROACTIVELY before merging harness changes or releasing. Read-only.",
+      "tools": ["Read", "Grep", "Glob", "Bash"],
+      "role": "review"
+    },
+    "gemini": {
+      "name": "eval-harness",
+      "description": "Runs the harness eval suite, scores fixtures, produces a deterministic pass/fail report. Use before merging harness changes or releasing.",
+      "kind": "TASK",
+      "tools": ["read_file", "search_files", "list_files", "run_shell_command"],
+      "role": "review",
+      "temperature": 0.2,
+      "max_turns": 15
+    },
+    "opencode": {
+      "name": "eval-harness",
+      "description": "Runs the harness eval suite and produces a deterministic pass/fail report.",
+      "mode": "subagent",
+      "tools": { "read": true, "bash": true, "write": false, "edit": false },
+      "role": "review"
+    },
+    "codex": {
+      "name": "eval_harness",
+      "description": "Read-only agent that runs the harness eval suite and reports pass/fail per fixture.",
+      "sandbox_mode": "read-only",
+      "role": "review"
+    }
+  },
+  "skill-stocktake": {
+    "claude": {
+      "name": "skill-stocktake",
+      "description": "Audits skills and agents across all platforms for drift, duplication, stale frontmatter, and skill-vs-agent rubric. Read-only — reports findings, never modifies.",
+      "tools": ["Read", "Grep", "Glob", "Bash"],
+      "role": "review"
+    },
+    "gemini": {
+      "name": "skill-stocktake",
+      "description": "Audits skills and agents for drift, duplication, and skill-vs-agent rubric. Read-only.",
+      "kind": "TASK",
+      "tools": ["read_file", "search_files", "list_files", "run_shell_command"],
+      "role": "review",
+      "temperature": 0.3,
+      "max_turns": 20
+    },
+    "opencode": {
+      "name": "skill-stocktake",
+      "description": "Audits skills and agents for drift and duplication. Read-only.",
+      "mode": "subagent",
+      "tools": { "read": true, "bash": true, "write": false, "edit": false },
+      "role": "review"
+    },
+    "codex": {
+      "name": "skill_stocktake",
+      "description": "Read-only audit of skills and agents for drift, duplication, and overlap.",
+      "sandbox_mode": "read-only",
+      "role": "review"
+    }
+  },
+  "deep-research": {
+    "claude": {
+      "name": "deep-research",
+      "description": "Multi-source web research specialist for technical, market, competitive, or due-diligence questions. Returns cited reports with separated fact/inference/recommendation.",
+      "tools": ["Read", "Grep", "Glob", "Bash", "WebFetch", "WebSearch"],
+      "role": "think"
+    },
+    "gemini": {
+      "name": "deep-research",
+      "description": "Multi-source web research specialist. Returns cited reports with separated fact/inference/recommendation.",
+      "kind": "TASK",
+      "tools": ["read_file", "search_files", "google_web_search", "web_fetch"],
+      "role": "think",
+      "temperature": 0.5,
+      "max_turns": 30
+    },
+    "opencode": {
+      "name": "deep-research",
+      "description": "Multi-source research specialist returning cited reports.",
+      "mode": "subagent",
+      "tools": { "read": true, "bash": true, "write": false, "edit": false, "webfetch": true },
+      "role": "think"
+    },
+    "codex": {
+      "name": "deep_research",
+      "description": "Read-only multi-source research with cited synthesis. Replaces the docs_researcher pattern with broader scope.",
+      "sandbox_mode": "read-only",
+      "role": "think"
+    }
+  },
+  "security-scan": {
+    "claude": {
+      "name": "security-scan",
+      "description": "Audits harness configuration files (.claude/, .gemini/, .codex/, .opencode/, hooks, MCP configs, agent definitions) for security vulnerabilities and misconfigurations. Read-only — surfaces risks; does not patch.",
+      "tools": ["Read", "Grep", "Glob", "Bash"],
+      "role": "critique"
+    },
+    "gemini": {
+      "name": "security-scan",
+      "description": "Audits harness configuration for security vulnerabilities and misconfigurations. Read-only.",
+      "kind": "TASK",
+      "tools": ["read_file", "search_files", "list_files", "run_shell_command"],
+      "role": "critique",
+      "temperature": 0.2,
+      "max_turns": 20
+    },
+    "opencode": {
+      "name": "security-scan",
+      "description": "Read-only audit of harness configuration security.",
+      "mode": "subagent",
+      "tools": { "read": true, "bash": true, "write": false, "edit": false },
+      "role": "critique"
+    },
+    "codex": {
+      "name": "security_scan",
+      "description": "Read-only harness config security scan. Categorized findings (CRITICAL/HIGH/MEDIUM/INFO).",
+      "sandbox_mode": "read-only",
+      "role": "critique"
+    }
   }
 }

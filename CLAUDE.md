@@ -2,7 +2,7 @@
 
 > Authoritative operating guide for Claude Code in this project.
 > Read this entirely before taking any action on any task.
-> Last updated: 2026-02-26
+> Last updated: 2026-05-16
 
 ---
 
@@ -207,6 +207,12 @@ Context window = a finite resource. Manage it deliberately.
 
 **What survives compaction:** CLAUDE.md, TodoWrite task list, git state, all files on disk
 **What's lost:** previously read file contents, conversation history, verbally stated preferences, tool call counts
+
+### Prompt stability (Hermes principle)
+
+Skills, memory, ticket context, and agent definitions are assembled into the system prompt at session start. They do **not** mutate during a session. Mid-session writes — `/learn`, `/skill-create`, `/handoff`, ticket updates — land on disk for the *next* session, not the current one.
+
+This is deliberate: cache-breaking mutations mid-conversation invalidate prompt caching and produce inconsistent behavior. Tools that modify the harness itself (skill writers, agent generators, hook updates) should target the next session and rely on `SessionStart` to surface changes.
 
 ### The Rules
 
@@ -745,12 +751,25 @@ These hooks run automatically via `.claude/settings.json`. They enforce standard
 | Type check | PostToolUse/Edit | Runs `tsc --noEmit` on `.ts/.tsx` edits; reports errors for the edited file only |
 | console.log warning | PostToolUse/Edit | Warns with line numbers when `console.log` added to JS/TS files |
 | console.log scan | Stop | Scans all git-modified JS/TS files for `console.log` after each response |
-| Session start | SessionStart | Auto-loads previous session summary into context |
-| Session end | Stop | Auto-saves session summary to `~/.claude/sessions/` |
-| Pre-compact | PreCompact | Logs compaction event; marks active session file |
+| Session start | SessionStart | Auto-loads previous session summary; surfaces last 10 trace events for the active ticket |
+| Session end | Stop | Auto-saves session summary to `~/.claude/sessions/`; appends event to `.ai/runs/{ticket}/events.jsonl` |
+| Pre-compact | PreCompact | Logs compaction event; marks active session file; writes `parent_session_id` lineage |
+| Per-tool trace | PostToolUse/* | Appends a `tool_use` event per call to `.ai/runs/{ticket}/events.jsonl` (Hermes pattern) |
+| User prompt trace | UserPromptSubmit | Appends a `user_message` event to `.ai/runs/{ticket}/events.jsonl` |
 
 **Hook behavior**: Exit code `2` blocks the action. Exit code `0` allows with optional warning. All hooks log to stderr.
 **Scripts**: All hook scripts live in `scripts/hooks/` with shared utilities in `scripts/lib/`.
+
+### Harness evals
+
+Deterministic regression tests for harness behavior live in `evals/`. Fixtures grade transcripts on 15 check types — files read before edits, diff size limits, agent dispatch shape, finding severity, ticket compliance.
+
+Run with:
+```bash
+node evals/run-evals.js evals/fixtures/<name>.md
+```
+
+New skills and agents must pass the existing eval suite before being saved (`scripts/validate-additions.js` runs this gate). Add a fixture whenever you fix a behavior bug you want to lock in.
 
 ---
 

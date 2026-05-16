@@ -8,7 +8,24 @@ const AI_AGENTS_DIR = path.join(ROOT, '.ai', 'agents');
 const CLAUDE_COMMANDS_DIR = path.join(ROOT, '.claude', 'commands');
 const OPENCODE_PROMPTS_DIR = path.join(ROOT, '.opencode', 'prompts', 'agents');
 const OPENCODE_COMMANDS_DIR = path.join(ROOT, '.opencode', 'commands');
+const OPENCODE_CONFIG = path.join(ROOT, '.opencode', 'opencode.json');
+const AGENT_CONFIG = path.join(ROOT, 'scripts', 'agent-config.json');
+const MODELS_FILE = path.join(ROOT, 'models.json');
 const isDryRun = process.argv.includes('--dry-run');
+
+function loadJson(file) {
+  if (!fs.existsSync(file)) return null;
+  try { return JSON.parse(fs.readFileSync(file, 'utf8')); }
+  catch (err) {
+    console.warn(`[gen-opencode-assets] Failed to parse ${file}: ${err.message}`);
+    return null;
+  }
+}
+
+function resolveOpencodeModel(role, models) {
+  if (!role || !models || !models.roles || !models.roles[role]) return null;
+  return models.roles[role].opencode || null;
+}
 
 const COMMAND_AGENT_MAP = {
   'build-fix': 'build-error-resolver',
@@ -107,11 +124,68 @@ function generateCommands() {
   }
 }
 
+function regenerateOpencodeAgents() {
+  const config = loadJson(AGENT_CONFIG);
+  const models = loadJson(MODELS_FILE);
+  const oc = loadJson(OPENCODE_CONFIG);
+  if (!config || !oc) {
+    console.warn('[gen-opencode-assets] Skipping opencode.json regen — missing inputs');
+    return;
+  }
+
+  const primary = (oc.agent && oc.agent.build) || {
+    description: 'Primary coding agent for project-template work.',
+    mode: 'primary',
+    model: models?.roles?.execute?.opencode || 'anthropic/claude-sonnet-4-6',
+    tools: { write: true, edit: true, bash: true, read: true },
+  };
+
+  const nextAgents = { build: primary };
+
+  for (const [name, agentCfg] of Object.entries(config)) {
+    const ocCfg = agentCfg.opencode || {};
+    const role = ocCfg.role || agentCfg.claude?.role || 'fallback';
+    const resolved = resolveOpencodeModel(role, models);
+
+    const claudeTools = new Set(agentCfg.claude?.tools || []);
+    const writeAllowed = ocCfg.tools?.write ?? (claudeTools.has('Write') || claudeTools.has('Edit'));
+    const editAllowed = ocCfg.tools?.edit ?? (claudeTools.has('Edit') || claudeTools.has('Write'));
+    const bashAllowed = ocCfg.tools?.bash ?? claudeTools.has('Bash');
+    const readAllowed = ocCfg.tools?.read ?? (claudeTools.has('Read') || true);
+
+    nextAgents[name] = {
+      description: ocCfg.description || agentCfg.claude?.description || '',
+      mode: ocCfg.mode || 'subagent',
+      model: resolved || primary.model,
+      prompt: `{file:prompts/agents/${name}.txt}`,
+      tools: {
+        read: readAllowed,
+        bash: bashAllowed,
+        write: writeAllowed,
+        edit: editAllowed,
+        ...(ocCfg.tools?.webfetch ? { webfetch: true } : {}),
+      },
+    };
+  }
+
+  oc.agent = nextAgents;
+  if (models?.roles?.execute?.opencode) oc.model = models.roles.execute.opencode;
+  if (models?.roles?.observe?.opencode) oc.small_model = models.roles.observe.opencode;
+
+  if (isDryRun) {
+    console.log(`[dry-run] would update ${OPENCODE_CONFIG} (${Object.keys(nextAgents).length} agents)`);
+    return;
+  }
+  fs.writeFileSync(OPENCODE_CONFIG, JSON.stringify(oc, null, 2) + '\n', 'utf8');
+  console.log(`[gen-opencode-assets] Updated ${OPENCODE_CONFIG} (${Object.keys(nextAgents).length} agents)`);
+}
+
 function main() {
   ensureDir(OPENCODE_PROMPTS_DIR);
   ensureDir(OPENCODE_COMMANDS_DIR);
   generateAgentPrompts();
   generateCommands();
+  regenerateOpencodeAgents();
 
   const mode = isDryRun ? 'dry-run' : 'apply';
   console.log(`[gen-opencode-assets] Completed in ${mode} mode`);

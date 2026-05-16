@@ -5,15 +5,15 @@
     "sonnet": "claude-sonnet-4-6",
     "haiku": "claude-haiku-4-5"
   },
-  "_note_on_model_field": "Values below use Claude Code's family aliases (sonnet/opus/haiku) so this harness auto-tracks the current best version of each family. To pin to a specific version (e.g. claude-sonnet-4-6), replace the alias with the explicit ID.",
+  "_note_on_model_field": "Values below use Claude Code's family aliases (sonnet/opus/haiku) so this harness auto-tracks the current best version of each family. To pin to a specific version (e.g. claude-sonnet-4-6), replace the alias with the explicit ID. Per-platform fields: model (Claude Code), gemini (Gemini CLI), opencode (OpenCode JSON), codex (Codex TOML).",
   "roles": {
-    "plan":     { "model": "sonnet", "gemini": "gemini-2.5-pro",   "why": "Planning is context-heavy but mostly structural; Sonnet handles it without Opus tax." },
-    "execute":  { "model": "sonnet", "gemini": "gemini-2.5-pro",   "why": "Default for TDD, refactoring, code generation." },
-    "think":    { "model": "opus",   "gemini": "gemini-2.5-pro",   "why": "Architectural decisions, multi-system debugging, large-refactor review." },
-    "critique": { "model": "opus",   "gemini": "gemini-2.5-pro",   "why": "Adversarial reviewers (security, harness audits) benefit from Opus's stronger reasoning." },
-    "review":   { "model": "sonnet", "gemini": "gemini-2.5-pro",   "why": "Standard code review — Sonnet sufficient." },
-    "observe":  { "model": "haiku",  "gemini": "gemini-2.5-flash", "why": "Hooks, observers, classifiers, summarizers — cheap and fast." },
-    "fallback": { "model": "sonnet", "gemini": "gemini-2.5-pro",   "why": "When role is unspecified." }
+    "plan":     { "model": "sonnet", "gemini": "gemini-2.5-pro",   "opencode": "anthropic/claude-sonnet-4-6", "codex": "gpt-5.4",          "why": "Planning is context-heavy but mostly structural; Sonnet handles it without Opus tax." },
+    "execute":  { "model": "sonnet", "gemini": "gemini-2.5-pro",   "opencode": "anthropic/claude-sonnet-4-6", "codex": "gpt-5.4",          "why": "Default for TDD, refactoring, code generation." },
+    "think":    { "model": "opus",   "gemini": "gemini-2.5-pro",   "opencode": "anthropic/claude-opus-4-7",   "codex": "gpt-5.4",          "why": "Architectural decisions, multi-system debugging, large-refactor review." },
+    "critique": { "model": "opus",   "gemini": "gemini-2.5-pro",   "opencode": "anthropic/claude-opus-4-7",   "codex": "gpt-5.4",          "why": "Adversarial reviewers (security, harness audits) benefit from Opus's stronger reasoning." },
+    "review":   { "model": "sonnet", "gemini": "gemini-2.5-pro",   "opencode": "anthropic/claude-sonnet-4-6", "codex": "gpt-5.4",          "why": "Standard code review — Sonnet sufficient." },
+    "observe":  { "model": "haiku",  "gemini": "gemini-2.5-flash", "opencode": "anthropic/claude-haiku-4-5",  "codex": "gpt-5.4-mini",     "why": "Hooks, observers, classifiers, summarizers — cheap and fast." },
+    "fallback": { "model": "sonnet", "gemini": "gemini-2.5-pro",   "opencode": "anthropic/claude-sonnet-4-6", "codex": "gpt-5.4",          "why": "When role is unspecified." }
   },
   "agent_roles": {
     "planner":              "plan",
@@ -25,7 +25,11 @@
     "database-reviewer":    "review",
     "e2e-runner":           "execute",
     "refactor-cleaner":     "execute",
-    "harness-optimizer":    "think"
+    "harness-optimizer":    "think",
+    "eval-harness":         "review",
+    "skill-stocktake":      "review",
+    "deep-research":        "think",
+    "security-scan":        "critique"
   },
   "escalation_rules": [
     "Sonnet stuck after one clear retry  -> escalate to Opus",

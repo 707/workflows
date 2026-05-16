@@ -43,3 +43,40 @@ Raise agent completion quality by improving harness configuration, not by rewrit
 - applied changes
 - measured improvements
 - remaining risks
+
+---
+
+## Reference: Harness Construction Model
+
+The four quality constraints (use these to score the current harness and target improvements):
+
+1. **Action space quality** — tool names stable, inputs schema-first, output deterministic, no catch-all tools.
+2. **Observation quality** — every tool response includes status, one-line summary, next actions, artifact references.
+3. **Recovery quality** — every error path includes root cause hint, safe retry, explicit stop condition.
+4. **Context budget quality** — system prompt minimal/invariant, large guidance lives in on-demand skills, compaction at phase boundaries.
+
+### Granularity Rules
+
+- Micro-tools for high-risk operations (deploy, migration, permissions)
+- Medium tools for common read/edit/search loops
+- Macro-tools only when round-trip overhead is the dominant cost
+
+### Architecture Patterns
+
+- ReAct: exploratory tasks with uncertain path
+- Function-calling: structured deterministic flows
+- Hybrid (recommended): ReAct planning + typed tool execution
+
+### Benchmarks to Track
+
+- completion rate
+- retries per task
+- pass@1 and pass@3
+- cost per successful task
+
+### Anti-patterns
+
+- Too many tools with overlapping semantics
+- Opaque tool output with no recovery hints
+- Error-only output without next steps
+- Context overloading with irrelevant references
