@@ -67,10 +67,11 @@ async function main() {
   const activeTicketFile = path.join(process.cwd(), '.ai', 'tickets', 'active.md');
   if (fs.existsSync(activeTicketFile)) {
     const activeContent = readFile(activeTicketFile);
-    const ticketIdMatch = activeContent && activeContent.match(/^(GH-\d+|\d+)$/m);
+    // Support GH-N (GitHub), ENG-42 / ABC-7 etc. (Linear), and bare N.
+    const ticketIdMatch = activeContent && activeContent.match(/^([A-Z]+-\d+|\d+)$/m);
     if (ticketIdMatch) {
       const rawId = ticketIdMatch[1];
-      const ticketId = rawId.startsWith('GH-') ? rawId : `GH-${rawId}`;
+      const ticketId = /^[A-Z]+-\d+$/.test(rawId) ? rawId : `GH-${rawId}`;
       const contextFile = path.join(process.cwd(), '.ai', 'tickets', ticketId, 'context.md');
       if (fs.existsSync(contextFile)) {
         const contextContent = readFile(contextFile);
