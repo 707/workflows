@@ -88,6 +88,43 @@ To regenerate OpenCode-facing prompts and command shims:
 node scripts/gen-opencode-assets.js
 ```
 
+To regenerate Codex agent TOML files from `scripts/agent-config.json`:
+
+```bash
+node scripts/gen-codex-assets.js
+```
+
+## Cross-Platform Model Routing
+
+`models.json` at the repo root is the single source of truth for which model handles which role across all four harnesses. Per-platform fields per role:
+
+- `model` → Claude Code (e.g., `sonnet`, `opus`, `haiku`)
+- `gemini` → Gemini CLI (e.g., `gemini-2.5-pro`)
+- `opencode` → OpenCode (e.g., `anthropic/claude-sonnet-4-6`)
+- `codex` → Codex (e.g., `gpt-5.4`)
+
+Agents declare a `role` in `scripts/agent-config.json`; generators resolve the role to a platform-specific model. To change the model used by every "review" agent across all platforms, edit `models.json` and regenerate with the three commands above.
+
+## Trace & Pattern Mining
+
+Every session writes events to `.ai/runs/{ticket}/events.jsonl` (gitignored, per-developer). Hermes-style trace events:
+
+- `tool_use` — per tool call, written by the PostToolUse hook
+- `user_message` — per prompt, written by the UserPromptSubmit hook
+- `session_end` — per session, written by the Stop hook
+- `compaction` — written by the PreCompact hook with `parent_session_id` for lineage
+
+Retrospective analysis: `/pattern-mine` clusters sessions and proposes new skills or agents based on recurring patterns. Approval required per candidate. See `.claude/commands/pattern-mine.md`.
+
+## Validating Additions
+
+Before committing new skills or agents, run:
+
+```bash
+node scripts/validate-additions.js              # full validation
+node scripts/validate-additions.js --eval-gate  # also run regression evals
+```
+
 ## Working Rules
 
 - Prefer test-first changes for new behavior and bug fixes.

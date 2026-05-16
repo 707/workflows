@@ -255,21 +255,21 @@ function checkCrossScopeCollisions() {
 function runEvalGate() {
   const evalDir = path.join(ROOT, 'evals');
   const fixturesDir = path.join(evalDir, 'fixtures');
+  const transcriptsDir = path.join(evalDir, 'transcripts');
   if (!fs.existsSync(fixturesDir)) {
     info('No evals/fixtures/ directory — skipping eval gate');
     return;
   }
-  const fixtures = fs.readdirSync(fixturesDir).filter(f => f.endsWith('.md'));
-  let failed = 0;
-  for (const fix of fixtures) {
-    try {
-      execSync(`node ${path.join(evalDir, 'run-evals.js')} ${path.join(fixturesDir, fix)}`, { stdio: 'pipe' });
-    } catch {
-      err(`Eval fixture failed: ${fix}`, { file: path.join(fixturesDir, fix) });
-      failed++;
-    }
+  if (!fs.existsSync(transcriptsDir)) {
+    info('No evals/transcripts/ directory — skipping eval gate (provide --transcript-dir transcripts/ with one .md per fixture id)');
+    return;
   }
-  if (!failed) info(`Eval gate passed: ${fixtures.length} fixture(s)`);
+  try {
+    execSync(`node ${path.join(evalDir, 'run-evals.js')} --all --transcript-dir ${transcriptsDir}`, { stdio: 'pipe' });
+    info(`Eval gate passed (all fixtures)`);
+  } catch (e) {
+    err(`Eval gate failed: ${e.message.slice(0, 200)}`);
+  }
 }
 
 function main() {

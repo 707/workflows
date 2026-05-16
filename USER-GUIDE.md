@@ -2,6 +2,17 @@
 
 > This guide explains how the system works and why each piece exists.
 > For exhaustive reference, see `CLAUDE.md` and `AGENTS.md`. For Gemini CLI users, see `GEMINI.md`. For Codex users, also see `.codex/AGENTS.md`. For OpenCode users, see `.opencode/README.md`. For machine-level reusable skills, see `SHARED-SKILLS.md`.
+> Last updated: 2026-05-16 (v1.2)
+
+---
+
+## What's new in v1.1 / v1.2
+
+This guide reflects two milestones of harness modernization:
+
+**v1.1** — role-based model routing via `models.json`, `/tdd` worktree default, run-trace events on session end (`.ai/runs/{ticket}/events.jsonl`), deterministic harness evals (`evals/`), five new commands (`/harness-audit`, `/model-route`, `/quality-gate`, `/loop-start`, `/loop-status`).
+
+**v1.2** — 4 read-only skills promoted to dispatchable agents (`eval-harness`, `skill-stocktake`, `deep-research`, `security-scan`), cross-platform agent parity (OpenCode + Codex regenerated from `agent-config.json` + `models.json`), richer trace hooks (`PostToolUse`, `UserPromptSubmit`, session lineage on `/compact`), ShareGPT trajectory export, validator with eval gate (`scripts/validate-additions.js`), and `/pattern-mine` — a retrospective trace miner that proposes new skills or agents from recurring patterns. Hermes 4-section skill template (When to Use / Procedure / Pitfalls / Verification) is now the standard.
 
 ---
 
@@ -374,7 +385,7 @@ The `code-reviewer` only reports issues it is more than 80% confident are real p
 
 ## The Agents
 
-The system has nine specialist agents. Each has a focused role with specific constraints. Think of them as team members: you would not ask your security engineer to refactor CSS, and you would not ask your TypeScript specialist to design the database schema.
+The system has fourteen specialist agents. Each has a focused role with specific constraints. Think of them as team members: you would not ask your security engineer to refactor CSS, and you would not ask your TypeScript specialist to design the database schema.
 
 **Why specialists instead of one general assistant:** A specialist agent has a focused system prompt that excludes everything outside its domain. The `build-error-resolver` only fixes errors — it does not refactor while it is in the file. The `refactor-cleaner` only removes dead code — it does not optimize anything it touches. Constraints produce better output than open-ended instructions.
 
@@ -393,7 +404,14 @@ database-reviewer     (invoke directly)    Schema design, query optimization,
 refactor-cleaner      /refactor-clean      Dead code, unused exports, cleanup
 architect             /plan (framed)       Major structural decisions,
                                            system design trade-offs
+harness-optimizer     /harness-audit       Improve the harness itself
+eval-harness          (invoke directly)    Run regression suite, score fixtures
+skill-stocktake       (invoke directly)    Audit skills/agents for drift
+deep-research         (invoke directly)    Multi-source cited research
+security-scan         (invoke directly)    Audit harness config (not app code)
 ```
+
+**Read-only by schema:** `planner`, `architect`, `code-reviewer`, `database-reviewer`, `eval-harness`, `skill-stocktake`, `security-scan`, and `deep-research` declare read-only tool sets in their frontmatter. They cannot write or edit files even if asked — Claude Code enforces this at the schema level (OpenDev pattern). When you promote a pattern to an agent via `/pattern-mine`, start read-only by default.
 
 **planner** — Creates phased implementation plans with specific file paths, estimated complexity, and risk assessment. Waits for your explicit confirmation before touching anything. After confirmation, writes the ticket context file that all other agents use to orient themselves.
 
@@ -412,6 +430,16 @@ architect             /plan (framed)       Major structural decisions,
 **refactor-cleaner** — Runs knip, depcheck, and ts-prune to find dead code, unused exports, and unused dependencies. Categorizes findings as SAFE, CAUTION, or DANGER. Only deletes SAFE items — one at a time, running tests after each deletion to verify nothing broke.
 
 **architect** — System-level design and trade-off analysis. Use for decisions with long-term consequences: data model choices, service boundaries, integration patterns, scalability considerations. Invoke via `/plan` with architecture framing, or directly.
+
+**harness-optimizer** — Reviews and improves the harness itself (hooks, evals, routing, context, safety). Runs `/harness-audit` baseline, identifies the top 3 leverage areas, proposes minimal reversible changes, applies and validates, reports before/after deltas. Read-only by default for proposals; gets `Edit` only when applying.
+
+**eval-harness** — Read-only agent. Runs every fixture in `evals/fixtures/`, aggregates pass/fail, computes per-fixture scores, and compares against the last run. Use before merging any harness configuration change (`agent-config.json`, `models.json`, any agent body) and before tagging a release.
+
+**skill-stocktake** — Read-only auditor of the skill and agent inventory. Walks `skills/`, `.ai/agents/`, and all platform folders. Flags duplicate names, description overlap (TF-IDF > 0.7), stale frontmatter, skill-vs-agent rubric violations, and orphans. Surfaces findings; never deletes. Use before tagging a release or after a batch of new skills.
+
+**deep-research** — Multi-source research specialist. Investigates a question across the web, cross-checks claims (prefer ≥2 independent sources for load-bearing facts), and produces a structured report that separates fact, inference, and recommendation. Returns explicit sources with one-line provenance. Covers technical/API research, market/competitive analysis, and investor due diligence.
+
+**security-scan** — Audits the harness *itself* — `.claude/`, `.gemini/`, `.codex/`, `.opencode/`, MCP configs, hooks, agent definitions, `models.json`. Different from `security-reviewer` (which audits application code). Categorizes findings CRITICAL / HIGH / MEDIUM / INFO. Read-only.
 
 > **Agents can run in parallel when their work is independent.**
 > Running `security-reviewer` and `code-reviewer` on the same PR simultaneously
@@ -482,6 +510,24 @@ Uses `gh` or `linear` CLI based on `.claude/project.json`. Useful before `/plan`
 **`BUILDING-SETUP.md`** — A one-time self-installing build journal wizard (not a slash command — trigger by saying `"Read BUILDING-SETUP.md and follow the instructions"`). It explores your project autonomously, asks 2-3 questions, and generates a personalized `BUILDING.md` that auto-updates as you build. The journal captures architecture decisions, build log entries, key learnings, and periodic check-ins. Works with both Claude Code and Gemini CLI (Gemini adapts the question flow to plain text instead of interactive prompts). The setup file deletes itself on completion — all that remains is your `BUILDING.md`.
 
 **`/update-skills`** — Regenerates `skills/INDEX.md` from all skill folders on disk. Run after manually pasting, adding, or removing skill folders. The index is also regenerated automatically whenever Claude writes a `skills/*/SKILL.md` file, so this command is mainly needed after manual additions outside Claude Code.
+
+**`/harness-audit`** — Scores this harness across tool coverage, context efficiency, quality gates, memory, evals, security, and cost. Run before and after harness changes to measure delta.
+
+**`/model-route`** — Recommends the right model tier for the current task based on complexity and budget. Advisor only — you decide whether to swap your main model or dispatch a stronger agent. See §6 of `CLAUDE.md` for the role table.
+
+**`/quality-gate`** — Runs the ECC quality pipeline on demand for a file or project scope. Pre-PR sanity check beyond `/code-review`.
+
+**`/loop-start`** — Starts a managed autonomous loop pattern with safety defaults. Use for long-running multi-step tasks where each iteration has a quality gate.
+
+**`/loop-status`** — Inspects active loop state, progress, and failure signals. Useful when checking on a `/loop-start` session in another window.
+
+**`/pattern-mine`** — Retrospective trace miner. Reads `.ai/runs/**/events.jsonl` across sessions, clusters recurring patterns (by directory, intent, files), classifies each as a **skill candidate** or **agent candidate** using the rubric from `skills/INDEX.md`, then proposes drafts for per-candidate approval. Three stages:
+```
+1. Deterministic clustering (zero LLM tokens) — node scripts/pattern-miner.js
+2. Sonnet semantic enrichment (1 call per candidate, ~$0.05-$0.10)
+3. Hermes constraint gates (size ≤ 15KB, no duplicates, eval suite passes)
+```
+Never auto-saves. The pipeline is opt-in and on-demand. Use `--dry-run` to see clusters without any LLM cost.
 
 ---
 
@@ -620,12 +666,93 @@ The principle behind hooks: a developer who formats code manually will sometimes
 | Type check | PostToolUse/Edit | Runs `tsc --noEmit` on `.ts/.tsx` edits; reports errors for the edited file only |
 | console.log warning | PostToolUse/Edit | Warns with line numbers when `console.log` is added to JS/TS |
 | Skills index update | PostToolUse/Write | Regenerates `skills/INDEX.md` when any `skills/*/SKILL.md` is written |
+| **Tool-use trace** | **PostToolUse/*** | **Appends a `tool_use` event to `.ai/runs/{ticket}/events.jsonl` (Hermes pattern)** |
+| **User-prompt trace** | **UserPromptSubmit** | **Appends a `user_message` event to `.ai/runs/{ticket}/events.jsonl`** |
 | console.log scan | Stop | Scans all git-modified JS/TS files for `console.log` after each response |
-| Session end | Stop | Saves session summary to `~/.claude/sessions/`; updates ticket metadata |
-| Session start | SessionStart | Loads previous session summary and active ticket context on startup |
-| Pre-compact | PreCompact | Logs compaction event; marks active session file |
+| Session end | Stop | Saves session summary; updates ticket metadata; appends `session_end` event; suggests `/learn` if 5+ tool calls + ended cleanly |
+| Session start | SessionStart | Loads previous session summary, active ticket context, and last 10 trace events |
+| Pre-compact | PreCompact | Logs compaction event; writes `parent_session_id` for session lineage |
 
 **How hook exit codes work:** A hook that exits with code `2` blocks the action entirely. A hook that exits with code `0` allows the action and optionally prints a warning. The TypeScript check uses code `0` — it reports errors without stopping Claude mid-edit.
+
+---
+
+## Model Routing (cross-platform)
+
+`models.json` at the repo root is the single source of truth for role → model assignments across all four harnesses. Seven roles cover the workload:
+
+| Role | What it's for | Claude | Gemini | OpenCode | Codex |
+|---|---|---|---|---|---|
+| `plan` | Sequencing, breaking work | sonnet | gemini-2.5-pro | sonnet-4-6 | gpt-5.4 |
+| `execute` | TDD, refactor, codegen | sonnet | gemini-2.5-pro | sonnet-4-6 | gpt-5.4 |
+| `review` | Standard code review | sonnet | gemini-2.5-pro | sonnet-4-6 | gpt-5.4 |
+| `think` | Architecture, multi-system reasoning | opus | gemini-2.5-pro | opus-4-7 | gpt-5.4 |
+| `critique` | Adversarial review | opus | gemini-2.5-pro | opus-4-7 | gpt-5.4 |
+| `observe` | Hooks, classifiers | haiku | gemini-2.5-flash | haiku-4-5 | gpt-5.4-mini |
+| `fallback` | Unspecified role | sonnet | gemini-2.5-pro | sonnet-4-6 | gpt-5.4 |
+
+Routing is **static**, not runtime. `models.json` is read at generation time and baked into agent frontmatter for each platform. There is no per-turn router; your main session model is whatever you launched the CLI with. Routing only takes effect when an agent is **dispatched as a subagent** — that subagent runs on whatever model its frontmatter pins.
+
+**Workflow:** edit `models.json`, then regenerate:
+
+```bash
+node scripts/gen-agents.js          # Claude + Gemini
+node scripts/gen-opencode-assets.js # OpenCode opencode.json + prompts
+node scripts/gen-codex-assets.js    # Codex .toml + config.toml
+```
+
+`/model-route` is an **advisor command** — it tells you which role a task fits but doesn't switch models for you. You decide whether to swap your main model (`/model opus`) or dispatch an agent that's already pinned to the right tier.
+
+---
+
+## Trace Events & Pattern Mining
+
+Every session writes structured events to `.ai/runs/{ticket}/events.jsonl` (gitignored, per-developer). Four event types:
+
+- `tool_use` — per tool call (PostToolUse hook). Captures tool name, file path, command first word, exit code.
+- `user_message` — per prompt (UserPromptSubmit hook). Captures excerpt (≤400 chars), char count, slash-command flag.
+- `session_end` — per session (Stop hook). Captures tools used, files modified, message count.
+- `compaction` — per compaction (PreCompact hook). Includes `parent_session_id` linking to predecessor.
+
+These events power **`/pattern-mine`** — a retrospective miner that finds recurring patterns across your sessions and proposes new skills or agents. Three stages:
+
+**Stage 1 (deterministic, zero LLM):** `scripts/pattern-miner.js` loads sessions, builds per-session feature vectors (intent TF-IDF, directories, files, tools), clusters by overlap + similarity, and classifies each cluster as skill / agent / noise.
+
+**Stage 2 (Sonnet enrichment, ~$0.05–$0.10 per candidate):** the `/pattern-mine` command reads the JSON output, opens representative session transcripts, and drafts skill/agent files using the Hermes 4-section template.
+
+**Stage 3 (constraint gates):** Hermes-style guardrails — size ≤ 15KB, description ≤ 500 chars, no name collision with existing skills/agents, full eval suite passes (`scripts/validate-additions.js --eval-gate`).
+
+Never auto-saves. Per-candidate approval required. Use `--dry-run` to see clusters without spending any LLM tokens. Total cost for a typical run: under $1.
+
+For external use (fine-tuning, archival, eval generation), export traces to standardized ShareGPT format:
+
+```bash
+node scripts/export-trajectories.js --since 30d --output traj.json
+```
+
+---
+
+## Validating Additions
+
+Before committing new skills or agents (manually or via `/pattern-mine`):
+
+```bash
+node scripts/validate-additions.js              # schema + duplicates + similarity + safety
+node scripts/validate-additions.js --eval-gate  # also runs evals/run-evals.js
+node scripts/validate-additions.js --json       # machine-readable for CI
+```
+
+What it catches:
+
+- Missing or invalid frontmatter (`name`, `description`, `stack`)
+- Duplicate names across scopes
+- Description overlap (TF-IDF cosine > 0.7) — same topic in two places
+- Skill ↔ agent overlap — a skill that duplicates an agent (or vice versa)
+- Read-only safety violations — `think`/`critique`/`review`/`plan` agents with `Write`/`Edit` tools
+- Cross-scope collisions (`~/.claude/skills/` ↔ `./skills/`)
+- Eval gate (with `--eval-gate`): existing regression fixtures must still pass
+
+Exit codes: `0` clean, `1` warnings only, `2` errors (block adding).
 
 ---
 
