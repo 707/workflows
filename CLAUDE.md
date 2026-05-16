@@ -778,6 +778,11 @@ Agent and command `.md` files live in `.claude/agents/` and `.claude/commands/`.
 | `/skill-create` | Generate a skill file from git history or session patterns | When a project-specific pattern emerges |
 | `/update-skills` | Regenerate `skills/INDEX.md` from disk | After manually adding skill folders |
 | `/refactor-clean` | Dead code cleanup and extraction | Code maintenance |
+| `/harness-audit` | Score this harness across tool coverage, context efficiency, quality gates, memory, evals, security, cost | Before/after harness changes |
+| `/model-route` | Recommend the right model tier for the current task by complexity and budget | When unsure whether to escalate Sonnet → Opus |
+| `/quality-gate` | Run the ECC quality pipeline on demand for a file or project scope | Pre-PR sanity check beyond `/code-review` |
+| `/loop-start` | Start a managed autonomous loop pattern with safety defaults | Long-running multi-step tasks with quality gates |
+| `/loop-status` | Inspect active loop state, progress, and failure signals | Checking on a `/loop-start` session |
 | `BUILDING-SETUP.md` | Self-installing build journal wizard — say "Read BUILDING-SETUP.md and follow the instructions" | Once, at project start |
 
 ---
