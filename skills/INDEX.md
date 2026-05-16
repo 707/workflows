@@ -2,7 +2,7 @@
 
 > Auto-generated — do not edit directly.
 > To update: run `node scripts/update-skills-index.js` or use `/update-skills`.
-> Last updated: 2026-05-16 16:07 UTC
+> Last updated: 2026-05-16 18:48 UTC
 
 ---
 
@@ -100,15 +100,12 @@ Skills are **opt-in** based on your declared tech stack, not opt-out from the di
 | `continuous-learning-v2` | Instinct-based learning system that observes sessions via hooks, creates atomic instincts with confidence scoring, and evolves them into skills/commands/agents. |
 | `cost-aware-llm-pipeline` | Cost optimization patterns for LLM API usage — model routing by task complexity, budget tracking, retry logic, and prompt caching. |
 | `enterprise-agent-ops` | Operate long-lived agent workloads with observability, security boundaries, and lifecycle management. |
-| `eval-harness` | Formal evaluation framework for Claude Code sessions implementing eval-driven development (EDD) principles |
 | `iterative-retrieval` | Pattern for progressively refining context retrieval to solve the subagent context problem |
 | `nutrient-document-processing` | Process, convert, OCR, extract, redact, sign, and fill documents using the Nutrient DWS API. Works with PDFs, DOCX, XLSX, PPTX, HTML, and images. |
 | `project-guidelines-example` | "Example project-specific skill template based on a real production application." |
 | `ralphinho-rfc-pipeline` | RFC-driven multi-agent DAG execution pattern with quality gates, merge queues, and work unit orchestration. |
 | `regex-vs-llm-structured-text` | Decision framework for choosing between regex and LLM when parsing structured text — start with regex, add LLM only for low-confidence edge cases. |
 | `search-first` | Research-before-coding workflow. Search for existing tools, libraries, and patterns before writing custom code. Invokes the researcher agent. |
-| `security-scan` | Scan your Claude Code configuration (.claude/ directory) for security vulnerabilities, misconfigurations, and injection risks using AgentShield. Checks CLAUDE.md, settings.json, MCP servers, hooks, and agent definitions. |
-| `skill-stocktake` | "Use when auditing Claude skills and commands for quality. Supports Quick Scan (changed skills only) and Full Stocktake modes with sequential subagent batch evaluation." |
 | `strategic-compact` | Suggests manual context compaction at logical intervals to preserve context through task phases rather than arbitrary auto-compaction. |
 | `tdd-workflow` | Use this skill when writing new features, fixing bugs, or refactoring code. Enforces test-driven development with 80%+ coverage including unit, integration, and E2E tests. |
 
@@ -120,7 +117,6 @@ Skills are **opt-in** based on your declared tech stack, not opt-out from the di
 | `bun-runtime` | Bun as runtime, package manager, bundler, and test runner. When to choose Bun vs Node, migration notes, and Vercel support. |
 | `claude-api` | Anthropic Claude API patterns for Python and TypeScript. Covers Messages API, streaming, tool use, vision, extended thinking, batches, prompt caching, and Claude Agent SDK. Use when building applications with the Claude API or Anthropic SDKs. |
 | `crosspost` | Multi-platform content distribution across X, LinkedIn, Threads, and Bluesky. Adapts content per platform using content-engine patterns. Never posts identical content cross-platform. Use when the user wants to distribute content across social platforms. |
-| `deep-research` | Multi-source deep research using firecrawl and exa MCPs. Searches the web, synthesizes findings, and delivers cited reports with source attribution. Use when the user wants thorough research on any topic with evidence and citations. |
 | `dmux-workflows` | Multi-agent orchestration using dmux (tmux pane manager for AI agents). Patterns for parallel agent workflows across Claude Code, Codex, OpenCode, and other harnesses. Use when running multiple agent sessions in parallel or coordinating multi-agent development workflows. |
 | `documentation-lookup` | Use up-to-date library and framework docs via Context7 MCP instead of training data. Activates for setup questions, API references, code examples, or when the user names a framework (e.g. React, Next.js, Prisma). |
 | `everything-claude-code` | Development conventions and patterns for everything-claude-code. JavaScript project with conventional commits. |
@@ -141,9 +137,37 @@ Skills are **opt-in** based on your declared tech stack, not opt-out from the di
 1. Create `skills/<skill-name>/SKILL.md` with YAML frontmatter:
    ```yaml
    name: skill-name
-   description: What this skill covers
+   description: What this skill covers (≤ 500 chars)
    stack: web   # web | python | go | java | swift | cpp | database | general
    origin: ECC
    ```
-2. Run `/update-skills` (or `node scripts/update-skills-index.js`).
-3. INDEX.md is regenerated automatically.
+2. Use the Hermes 4-section body template:
+   ```markdown
+   ## When to Use
+   [trigger conditions — be specific about which tasks activate this]
+
+   ## Procedure
+   [the steps the agent should take when this skill applies]
+
+   ## Pitfalls
+   [things that bite when applying this — REQUIRED]
+
+   ## Verification
+   [how the agent will know the skill worked — REQUIRED]
+   ```
+3. Run `/update-skills` (or `node scripts/update-skills-index.js`).
+4. INDEX.md is regenerated automatically.
+5. Validate with `node scripts/validate-additions.js` before committing.
+
+## Decide: skill or agent?
+
+| Pattern shape | Skill | Agent |
+|---|---|---|
+| Turns per occurrence | Short (1–5) | Long (10+) |
+| Context cost | Low — applied inline | High — reads many files |
+| Output | Behavior modification | Discrete artifact (report, plan) |
+| Read-only audit work | — | Strong candidate |
+
+When the work is long, context-heavy, and dispatch-and-return, build an
+agent in `.ai/agents/` instead. See `.ai/agents/eval-harness.md` and
+`.ai/agents/skill-stocktake.md` for read-only agent templates.

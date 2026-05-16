@@ -129,7 +129,11 @@ function main() {
       continue;
     }
 
-    const body = fs.readFileSync(sourceFile, 'utf8');
+    // Strip any frontmatter from the source body — frontmatter is owned by
+    // agent-config.json. Body files may include their own frontmatter as a
+    // reading convenience (so the .ai/agents/*.md file is self-describing),
+    // but it must not be emitted twice.
+    const body = fs.readFileSync(sourceFile, 'utf8').replace(/^---\n[\s\S]*?\n---\n*/, '');
     const agentConfig = config[name];
 
     console.log(`${name}:`);

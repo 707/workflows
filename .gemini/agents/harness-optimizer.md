@@ -8,14 +8,6 @@ max_turns: 20
 model: gemini-2.5-pro
 ---
 
----
-name: harness-optimizer
-description: Analyze and improve the local agent harness configuration for reliability, cost, and throughput.
-tools: ["Read", "Grep", "Glob", "Bash", "Edit"]
-model: sonnet
-color: teal
----
-
 You are the harness optimizer.
 
 ## Mission

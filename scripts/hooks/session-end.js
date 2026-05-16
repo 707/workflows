@@ -243,6 +243,17 @@ ${summarySection}
     }
   }
 
+  // /learn nudge — Hermes heuristic: when a session was tool-heavy AND ended
+  // cleanly (handoff written or many user messages), the work is likely worth
+  // capturing. Suggest, don't auto-write — keeps the user in control.
+  if (summary && summary.toolsUsed && summary.toolsUsed.length >= 5) {
+    const handoffLikely = summary.userMessages?.some(m => /\/handoff\b/.test(m));
+    const longEnough = summary.totalMessages >= 3;
+    if (handoffLikely || longEnough) {
+      log('[SessionEnd] Suggest: /learn — this session looks worth capturing as a reusable pattern.');
+    }
+  }
+
   process.exit(0);
 }
 

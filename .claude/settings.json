@@ -82,6 +82,27 @@
           }
         ],
         "description": "Regenerate skills/INDEX.md when any SKILL.md is written"
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ./scripts/hooks/trace-tool-use.js"
+          }
+        ],
+        "description": "Append a tool_use event to .ai/runs/{ticket}/events.jsonl for /pattern-mine (Hermes pattern)"
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ./scripts/hooks/trace-user-prompt.js"
+          }
+        ],
+        "description": "Append a user_message event to .ai/runs/{ticket}/events.jsonl"
       }
     ],
     "Stop": [
