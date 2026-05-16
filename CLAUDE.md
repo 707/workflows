@@ -401,6 +401,8 @@ Use specialized agents proactively — not only when you're stuck. Launch agents
 | Dead code cleanup needed | `refactor-cleaner` (Sonnet) | `/refactor-clean` |
 | Schema design or query optimization | `database-reviewer` (Sonnet) | Direct invocation |
 
+**Safe-by-schema agents (no write tools)**: `planner`, `architect`, `code-reviewer`, `database-reviewer` declare read-only tool sets in their frontmatter (Read/Grep/Glob, plus Bash on the reviewers for running checks). They *cannot* write or edit code even if instructed to — Claude Code enforces this at the schema level (OpenDev pattern, arXiv 2603.05344). Don't add Write/Edit to these agents without a deliberate review; the safety property comes from the absence.
+
 **Parallel agent execution**: When tasks are independent, launch multiple agents simultaneously. Example: security review + code quality review can run in parallel on the same PR.
 
 **Multi-perspective analysis**: For complex problems, invoke multiple agents for competing perspectives:
