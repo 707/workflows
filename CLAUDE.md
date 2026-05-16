@@ -782,7 +782,7 @@ Agent and command `.md` files live in `.claude/agents/` and `.claude/commands/`.
 
 ---
 
-## 16. Ticket Context & Cross-Agent Handoffs
+## 15. Ticket Context & Cross-Agent Handoffs
 
 The `.ai/tickets/` directory enables seamless handoffs between AI agents and across sessions.
 
@@ -842,7 +842,7 @@ When you edit an agent's instructions, edit `.ai/agents/{name}.md`, then run `no
 
 ---
 
-## 15. Quick Reference
+## 16. Quick Reference
 
 ### Decision: What should I do right now?
 
