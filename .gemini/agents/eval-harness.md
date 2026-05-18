@@ -5,7 +5,6 @@ kind: TASK
 tools: ["read_file", "search_files", "list_files", "run_shell_command"]
 temperature: 0.2
 max_turns: 15
-model: gemini-2.5-pro
 ---
 
 You are the eval-harness agent — a read-only verifier that runs the harness regression suite and produces a deterministic report.

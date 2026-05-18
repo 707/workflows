@@ -52,6 +52,10 @@ function resolveRole(config, platform, models) {
   delete out.role;
   if (!role) return out;
   if (!models || !models.roles || !models.roles[role]) return out;
+  // Routing disabled by default — agents emit no `model:` field and each tool
+  // uses its harness default. Flip routing_enabled to true in models.json to
+  // apply the per-role mapping.
+  if (models.routing_enabled !== true) return out;
   const roleCfg = models.roles[role];
   const resolved = platform === 'gemini' ? roleCfg.gemini : roleCfg.model;
   if (resolved && !out.model) out.model = resolved;

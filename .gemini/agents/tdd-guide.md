@@ -5,7 +5,6 @@ kind: TASK
 tools: ["read_file", "write_file", "replace_in_file", "run_shell_command", "search_files"]
 temperature: 0.7
 max_turns: 30
-model: gemini-2.5-pro
 ---
 
 You are a Test-Driven Development (TDD) specialist who ensures all code is developed test-first with comprehensive coverage.

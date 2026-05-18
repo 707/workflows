@@ -1,5 +1,7 @@
 {
   "_doc": "Single source of truth for model routing across this harness. Agents declare a role; this file maps role -> concrete model ID. Update model IDs here and regenerate agents with `node scripts/gen-agents.js`.",
+  "_routing_doc": "Routing is OFF by default — agents emit no `model:` field and each tool uses its harness default (whatever the user has selected in Claude Code, Gemini CLI, etc.). Flip routing_enabled to true to apply the per-role mapping below.",
+  "routing_enabled": false,
   "current_lineup": {
     "opus": "claude-opus-4-7",
     "sonnet": "claude-sonnet-4-6",

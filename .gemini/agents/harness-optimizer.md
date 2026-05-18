@@ -5,7 +5,6 @@ kind: TASK
 tools: ["read_file", "search_files", "list_files", "run_shell_command", "replace_in_file"]
 temperature: 0.5
 max_turns: 20
-model: gemini-2.5-pro
 ---
 
 You are the harness optimizer.

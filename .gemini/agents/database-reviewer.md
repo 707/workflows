@@ -5,7 +5,6 @@ kind: TASK
 tools: ["read_file", "write_file", "replace_in_file", "run_shell_command", "search_files", "list_files"]
 temperature: 0.3
 max_turns: 20
-model: gemini-2.5-pro
 ---
 
 # Database Reviewer

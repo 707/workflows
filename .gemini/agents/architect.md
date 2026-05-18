@@ -5,7 +5,6 @@ kind: TASK
 tools: ["read_file", "search_files", "list_files"]
 temperature: 0.7
 max_turns: 20
-model: gemini-2.5-pro
 ---
 
 You are a senior software architect specializing in scalable, maintainable system design.

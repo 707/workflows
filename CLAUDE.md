@@ -422,7 +422,16 @@ Here's the code [agent 1] wrote. Review it critically. What could go wrong? What
 
 ## 6. Model Selection
 
-Routing is defined in `models.json` at the repo root — the single source of truth for which model handles which role.
+**Model routing is OFF by default.** Every agent uses whatever model your harness is set to (Claude Code's `/model`, Gemini CLI's default, etc.). The per-role mapping in `models.json` is preserved as a config, but `gen-agents.js` only applies it when `"routing_enabled": true`.
+
+To enable per-role routing, flip the flag in `models.json` and regenerate:
+
+```
+# in models.json: "routing_enabled": true
+node scripts/gen-agents.js
+```
+
+When routing is enabled, the table below applies. When disabled, treat the "Model" column as informational ("this is what you'd use if you turned routing on") rather than what's actually running.
 
 **Current lineup (April 2026):** Opus 4.7, Sonnet 4.6, Haiku 4.5.
 

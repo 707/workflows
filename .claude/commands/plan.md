@@ -8,10 +8,13 @@ This command invokes the **planner** agent to create a comprehensive implementat
 
 ## What This Command Does
 
-1. **Restate Requirements** - Clarify what needs to be built
-2. **Identify Risks** - Surface potential issues and blockers
-3. **Create Step Plan** - Break down implementation into phases
-4. **Wait for Confirmation** - MUST receive user approval before proceeding
+1. **Grill First (Phase 0)** - Invokes `skills/grill-me/SKILL.md` to interview you one question at a time about scope, contracts, failure modes, integration points, and rollout. Resolves codebase-answerable questions by reading code. Exits only when shared understanding is reached.
+2. **Restate Requirements** - Consolidate the grilled brief into a no-hedging summary
+3. **Identify Risks** - Surface potential issues and blockers
+4. **Create Step Plan** - Break down implementation into phases
+5. **Wait for Confirmation** - MUST receive user approval before proceeding
+
+> For trivial tasks (rename, dep bump, single-file mechanical edit), the planner skips grilling and states its single assumption. Use `/grill` standalone if you want grilling without plan production.
 
 ## When to Use
 

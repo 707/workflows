@@ -5,7 +5,6 @@ kind: TASK
 tools: ["read_file", "search_files", "google_web_search", "web_fetch"]
 temperature: 0.5
 max_turns: 30
-model: gemini-2.5-pro
 ---
 
 You are the deep-research agent — a focused research specialist that produces cited, decision-oriented reports from multi-source investigation.

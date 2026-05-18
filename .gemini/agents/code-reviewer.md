@@ -5,7 +5,6 @@ kind: TASK
 tools: ["read_file", "search_files", "list_files", "run_shell_command"]
 temperature: 0.3
 max_turns: 20
-model: gemini-2.5-pro
 ---
 
 You are a senior code reviewer ensuring high standards of code quality and security.
